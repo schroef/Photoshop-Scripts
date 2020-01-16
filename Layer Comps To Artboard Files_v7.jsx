@@ -57,6 +57,8 @@ var strLabelDestination = localize("$$$/JavaScripts/LayerCompsToABFiles/Destinat
 var strButtonBrowse = localize("$$$/JavaScripts/LayerCompsToABFiles/Browse=&Browse...");
 var strLabelFileNamePrefix = localize("$$$/JavaScripts/LayerCompsToABFiles/FileNamePrefix=File Name Prefix:");
 var strCheckboxSelectionOnly = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedOnly=&Selected Layer Comps Only");
+var strcbSelectionHelp = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedHelp=Uses selected Layer Lomp only");
+var strddUseComp = localize("$$$/JavaScripts/LayerCompsToABFiles/DDuseComp=Select Layer Comp from document");
 var strCheckboxAddCompComment = localize("$$$/JavaScripts/LayerCompsToABFiles/AddCompComment=&Include Layer Comp Comment");
 var strLabelFileType = localize("$$$/JavaScripts/LayerCompsToABFiles/FileType=File Type:");
 var strCheckboxIncludeICCProfile = localize("$$$/JavaScripts/LayerCompsToABFiles/IncludeICC=&Include ICC Profile");
@@ -261,42 +263,27 @@ function main() {
 				alert("No artboard selected!" +"\n" + "Select one from the dropdown menu");
 				return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
 			}
-            var nameCountObj = countCompsNames(docRef.layerComps);
-            for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
-                var compRef = docRef.layerComps[compsIndex];
-                if (exportInfo.selectionOnly && !compRef.selected) continue; // selected only
+            // alert((exportInfo.selectionOnly && !compRef.selected)+" selected only")
+            // if ((!exportInfo.useLayerComp == "0") && (!exportInfo.useLayerComp == "1")) {
+            // alert(exportInfo.useLayerComp.value)
+            if ((exportInfo.useLayerComp == "0")||(exportInfo.useLayerComp == "1")) {
+                var nameCountObj = countCompsNames(docRef.layerComps);
+                for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
+                    var compRef = docRef.layerComps[compsIndex];
+                    if (exportInfo.selectionOnly && !compRef.selected) continue; // selected only
+                    compRef.apply();
+                    exportComps(compsIndex, exportInfo, compRef, nameCountObj)
+                }
+            } else {
+                compsIndex = exportInfo.useLayerComp;
+                var nameCountObj = countCompsNames(docRef.layerComps);
+                if (exportInfo.useLayerComp == "1") {
+                    var compRef = docRef.layerComps[exportInfo.useLayerComp+2];
+                } else {
+                    var compRef = docRef.layerComps[exportInfo.useLayerComp-2];
+                }
                 compRef.apply();
-
-                try {
-                    // get the artboard data from the active document,
-                    var abAr = getABLayerInfo().reverse();
-                    var artbrdCount = abAr.length;
-                } catch (e) {
-                    // DO nothing
-                }
-                // if (artbrdCount == 0) {
-                //     if (DialogModes.NO != app.playbackDisplayDialogs) {
-                //         alert(strAlertNoArtboardsFound);
-                //     }
-                    // return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
-                // } else {    
-                if (exportInfo.artboardShow) {
-                    var singAB = exportInfo.singleArtboard;
-                    // alert (abAr+" - Artboard - SingAB - " + singAB)
-                    exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
-                }
-                if (!exportInfo.artboardShow) {
-                    if (artbrdCount !== 0) {
-                        for (artbrdIndex = 0; artbrdIndex < artbrdCount; artbrdIndex++) {
-                            exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj);
-                        }
-                    } else {
-                        var abAr = false
-                        exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
-                    }
-                
-                }
-                // }
+                exportComps(compsIndex, exportInfo, compRef, nameCountObj)
             }
 
             var d = objectToDescriptor(exportInfo, strMessage, preProcessExportInfo);
@@ -332,6 +319,10 @@ function main() {
 // Return: on ok, the dialog info is set to the exportInfo object
 ///////////////////////////////////////////////////////////////////////////////
 function settingDialog(exportInfo) {
+    var docName = app.activeDocument.name;
+    app.activeDocument = app.documents[docName];
+    docRef = app.activeDocument;
+
     var dlgMain = new Window("dialog", strTitle);
 
     // match our dialog background color to the host application
@@ -397,10 +388,31 @@ function settingDialog(exportInfo) {
     dlgMain.cbFileNamePrefixIndex.value = exportInfo.prefixIndex;
 
     // -- the fifth line in the dialog
-    dlgMain.cbSelection = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxSelectionOnly);
+    dlgMain.grLayComps = dlgMain.grpTopLeft.add("group");
+    dlgMain.grLayComps.orientation = "row";
+
+    dlgMain.cbSelection = dlgMain.grLayComps.add("checkbox", undefined, strCheckboxSelectionOnly);
     dlgMain.cbSelection.value = exportInfo.selectionOnly;
     dlgMain.cbSelection.enabled = exportInfo.selectionOnly;
+    dlgMain.cbSelection.helpTip = strcbSelectionHelp;
     
+    // dlgMain.pnlUseArtboard.pnlABoptions.add("statictext", undefined, strLabelUseArtboard);
+    dlgMain.ddUseComp = dlgMain.grLayComps.add("dropdownlist");
+    dlgMain.ddUseComp.preferredSize.width = StrToIntWithDefault(strddUseArtBoard, 120);
+    dlgMain.ddUseComp.alignment = 'right';
+    dlgMain.ddUseComp.helpTip = strddUseComp;
+    
+    // var UseComp = countCompsNames(docRef.layerComps);
+    var UseCompCount = docRef.layerComps.length;
+	dlgMain.ddUseComp.add("item", "All");
+	dlgMain.ddUseComp.add("item", "Selected");
+    for (UseCompIndex = 0; UseCompIndex < UseCompCount; UseCompIndex++) {
+        dlgMain.ddUseComp.add("item", docRef.layerComps[UseCompIndex].name);
+    }
+    // Set menu too default
+    if (!exportInfo.selectionOnly) dlgMain.ddUseComp.items["0"].selected = true;
+    if (exportInfo.selectionOnly) dlgMain.ddUseComp.items["1"].selected = true;
+
     dlgMain.cbComment = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddCompComment);
     dlgMain.cbComment.value = exportInfo.addCompComment;
 
@@ -805,6 +817,7 @@ function settingDialog(exportInfo) {
     exportInfo.artboardShow = dlgMain.cbArtboardShow.value;
 	// if (exportInfo.artboardShow) {
 	try {
+		exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
 		exportInfo.singleArtboard = dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.selection.index;
 	} catch (e) {
 		// alert("No artboard selected!" + "\n" + e);
@@ -916,6 +929,7 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         if (artboardAvail) exportInfo.inclArtboardName = true;
         if (!artboardAvail) exportInfo.inclArtboardName = false;
     } else {
+        exportInfo.useLayerComp = 0;
         exportInfo.addCompComment = false;
         exportInfo.singleArtboard = 0;
         exportInfo.fileType = psdIndex;
@@ -1662,11 +1676,53 @@ function selectedCompsConfigError(docLayerComps, exportInfo) {
     return false; // option off
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: exportComps
+// Usage: Check what settings user wants
+// Input: exportInfo object containing our parameters
+// Return: on ok, starte exporting comps / artboards
+///////////////////////////////////////////////////////////////////////////////
+
+function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
+    try {
+        // get the artboard data from the active document,
+        var abAr = getABLayerInfo().reverse();
+        var artbrdCount = abAr.length;
+    } catch (e) {
+        // DO nothing
+    }
+    // if (artbrdCount == 0) {
+    //     if (DialogModes.NO != app.playbackDisplayDialogs) {
+    //         alert(strAlertNoArtboardsFound);
+    //     }
+        // return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+    // } else {    
+    if (exportInfo.artboardShow) {
+        var singAB = exportInfo.singleArtboard;
+        // alert (abAr+" - Artboard - SingAB - " + singAB)
+        exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
+    }
+    if (!exportInfo.artboardShow) {
+        if (artbrdCount !== 0) {
+            for (artbrdIndex = 0; artbrdIndex < artbrdCount; artbrdIndex++) {
+                exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj);
+            }
+        } else {
+            var abAr = false
+            exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
+        }
+    
+    }
+    // }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Function: exportArtboards - Single or All
 // Usage: Check what settings user wants
 // Input: exportInfo object containing our parameters
-// Return: on ok, the dialog info is set to the exportInfo object
+// Return: on ok, artboards from comps or just layer comps are saved
 ///////////////////////////////////////////////////////////////////////////////
 
 function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj) {
@@ -1714,7 +1770,6 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         var cropRegion = [lt, tp, rt, bt];
         duppedDocument.crop(cropRegion);
     }
-
 	// alert(abAr[artbrdIndex].visible)
     if (duppedDocument.bitsPerChannel == duppedDocument.THIRTYTWO) duppedDocument.bitsPerChannel = duppedDocument.SIXTEEN;
 
@@ -1723,7 +1778,6 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     // fileNameBody += "_" + zeroSuppress(compsIndex, 4);
     // fileNameBody += "_" + compRef.name;
     fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, "_"); // '/\:*?"<>|\r\n' -> '_'
-
     if (exportInfo.inclArtboardName) {
         if (exportInfo.fileNamePrefix) {
             fileNameBody += '_';
