@@ -1852,7 +1852,7 @@ function removeAllInvisible(docRef) {
     // alert(getLayerInfo(docRef));
     var getInfo = getLayerInfo(docRef);
     getLayerInfo(docRef);
-    alert(getInfo.length);
+    // alert(getInfo.length);
     // getInfo[i].id
     removeAllInvisibleArtLayers(docRef);
     removeAllEmptyLayerSets(docRef);
@@ -1998,7 +1998,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
             if (exportInfo.trimLayers == true) {
                 duppedDocument.trim(TrimType.TRANSPARENT);
             }
-            duppedDocument.flatten();
+            docRef.layerComps.removeAll();
     }
 
     app.activeDocument = duppedDocument;
@@ -2054,10 +2054,10 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     }
     if (fileNameBody.length > 120) fileNameBody = fileNameBody.substring(0, 120);
     fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, ""); // '/\:*?"<>|\r\n' -> '_'
-    // Convert to sRGB if true
-    // if (exportInfo.convicc) {
-    //     ConvertTosRGBProfile();
-    // }
+    //Convert to sRGB if true
+    if (exportInfo.convicc) {
+        ConvertTosRGBProfile();
+    }
 
     saveFile(duppedDocument, fileNameBody, exportInfo);
     duppedDocument.close(SaveOptions.DONOTSAVECHANGES);
