@@ -65,9 +65,10 @@ var strCheckboxIncludeICCProfile = localize("$$$/JavaScripts/LayerCompsToABFiles
 var strJPEGOptions = localize("$$$/JavaScripts/LayerCompsToABFiles/JPEGOptions=JPEG Options:");
 var strLabelQuality = localize("$$$/JavaScripts/LayerCompsToABFiles/Quality=Quality:");
 var strPSDOptions = localize("$$$/JavaScripts/LayerCompsToABFiles/PSDOptions=PSD Options:");
-var strPSDlayers = localize("$$$/JavaScripts/LayerCompsToABFiles/PSDlayers=Save Layers:");
+var strPSDlayers = localize("$$$/JavaScripts/LayerCompsToABFiles/PSDlayers=Save Layers");
 var strCheckboxMaximizeCompatibility = localize("$$$/JavaScripts/LayerCompsToABFiles/Maximize=&Maximize Compatibility");
 var strTIFFOptions = localize("$$$/JavaScripts/LayerCompsToABFiles/TIFFOptions=TIFF Options:");
+var strTIFFlayers = localize("$$$/JavaScripts/LayerCompsToABFiles/TIFFlayers=Save Layers");
 var strCheckboxTIFFTransparency = localize("$$$/JavaScripts/ExportLayersToFiles/Transparency=Transparency");
 var strLabelImageCompression = localize("$$$/JavaScripts/LayerCompsToABFiles/ImageCompression=Image Compression:");
 var strNone = localize("$$$/JavaScripts/LayerCompsToABFiles/None=None");
@@ -98,15 +99,17 @@ var strPNG8Options = localize("$$$/JavaScripts/ExportLayersToFiles/PNG8Options=P
 var strCheckboxPNGTransparency = localize("$$$/JavaScripts/ExportLayersToFiles/Transparency=Transparency");
 var strCheckboxPNGInterlaced = localize("$$$/JavaScripts/ExportLayersToFiles/Interlaced=Interlaced");
 var strPNG24Options = localize("$$$/JavaScripts/ExportLayersToFiles/PNG24Options=PNG-24 Options:");
-var strConvertICC = localize( "$$$/JavaScripts/ImageProcessor/Convert=Convert to sRGB" );
-var strConvertICCHelp = localize( "$$$/JavaScripts/ImageProcessor/ConvertHelp=Convert the ICC profile to sRGB before saving" );
+var strConvertICC = localize("$$$/JavaScripts/ImageProcessor/Convert=Convert to sRGB");
+var strConvertICCHelp = localize("$$$/JavaScripts/ImageProcessor/ConvertHelp=Convert the ICC profile to sRGB before saving");
+var strCheckboxTrimLayers = localize("$$$/JavaScripts/CompsToFiles/Trim=Trim Layers");
+var strCheckboxTrimLayersHelp = localize("$$$/JavaScripts/ImageProcessor/TrimLayersHelp=Trims transparent pixels");
 
 var strAlertNoArtboardsFound = localize("$$$/JavaScripts/LayerCompsToABFiles/Noartbrd=No artboards found in document.");
-var strIncludeArtboardName = localize('$$$/JavaScripts/LayerCompsToABFiles/IncludeArtboardName=Include Artboard Name')
-var strShowUseArtboard = localize('$$$/JavaScripts/ArtboardsToFiles/ShowUseArtboard=Single Artboard')
+var strIncludeArtboardName = localize("$$$/JavaScripts/LayerCompsToABFiles/IncludeArtboardName=Include Artboard Name")
+var strShowUseArtboard = localize("$$$/JavaScripts/ArtboardsToFiles/ShowUseArtboard=Single Artboard")
 var strddUseArtBoard = localize("$$$/locale_specific/JavaScripts/LayerCompsToABFiles/DDUseArtboard=100");
 var strLabelUseArtboard = localize("$$$/JavaScripts/LayerCompsToABFiles/UseArtboard=Choose Artboard");
-var strArtboardPanelOptions = localize('$$$/JavaScripts/ArtboardsToFiles/Options=Options:')
+var strArtboardPanelOptions = localize("$$$/JavaScripts/ArtboardsToFiles/Options=Options:")
 
 // the drop down list indexes for file type
 var bmpIndex = 0;
@@ -129,6 +132,17 @@ var runButtonID = 1;
 var cancelButtonID = 2;
 
 
+/*//////////////////////////////
+//  VERSION
+//  v14 - July 13 2020
+
+/*//////////////////////////////
+//  TODO
+    • Webexport > resize to 72
+    • Check convertsRGB, it does this on layered
+
+
+// */
 ///////////////////////////////////////////////////////////////////////////////
 // Dispatch
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,7 +168,7 @@ function main() {
         if (DialogModes.NO != app.playbackDisplayDialogs) {
             alert(strAlertDocumentMustBeOpened);
         }
-        return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+        return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     }
 
     // Check selected Artboards
@@ -180,8 +194,8 @@ function main() {
     var docLayerComps = app.activeDocument.layerComps;
     var compsCount = docLayerComps.length;
     var compS_indx = [];
-    for ( compsIndex = 0; compsIndex < compsCount; compsIndex++ ) {
-        var compRef = docLayerComps[ compsIndex ];
+    for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
+        var compRef = docLayerComps[compsIndex];
         //alert(compRef+" "+compRef.selected)
         if (compRef.selected) {
             var isSel = true
@@ -191,11 +205,11 @@ function main() {
         }
     }
     if (compS_indx.length === 0) {
-            var isSelection = false
-        } else {
-            var isSelection = true
-        }
-    
+        var isSelection = false
+    } else {
+        var isSelection = true
+    }
+
     var exportInfo = new Object();
 
     initExportInfo(exportInfo, isSelection, artboardAvail, false);
@@ -206,7 +220,7 @@ function main() {
         var d = app.getCustomOptions("d69fc733-75b4-4d5c-ae8a-c6d6f9a8aa32");
         descriptorToObject(exportInfo, d, strMessage, postProcessExportInfo);
     } catch (e) {
-        // it's ok if we don't have any options, continue with defaults
+        // it"s ok if we don"t have any options, continue with defaults
     }
 
     // see if I am getting descriptor parameters
@@ -220,7 +234,7 @@ function main() {
     //     initFileNameDestination(exportInfo)
     //     if (DialogModes.ALL == app.playbackDisplayDialogs) {
     //         if (cancelButtonID == settingDialog(exportInfo)) {
-    //             return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+    //             return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     //         }
     //     }
     // }
@@ -230,7 +244,7 @@ function main() {
     initExportInfo(exportInfo, isSelection, artboardAvail, true);
     if (DialogModes.ALL == app.playbackDisplayDialogs) {
         if (cancelButtonID == settingDialog(exportInfo)) {
-            return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+            return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
         }
     }
 
@@ -242,12 +256,12 @@ function main() {
             if (DialogModes.NO != app.playbackDisplayDialogs) {
                 alert(strAlertNoLayerCompsFound);
             }
-            return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
-		} else if ( selectedCompsConfigError(app.activeDocument.layerComps, exportInfo) ) {
-            if ( DialogModes.NO != app.playbackDisplayDialogs ) {
-                alert ( strAlertNoLayerCompsSelected );
+            return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
+        } else if (selectedCompsConfigError(app.activeDocument.layerComps, exportInfo)) {
+            if (DialogModes.NO != app.playbackDisplayDialogs) {
+                alert(strAlertNoLayerCompsSelected);
             }
-	    	return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script	
+            return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script	
         } else {
             app.activeDocument = app.documents[docName];
             docRef = app.activeDocument;
@@ -259,14 +273,15 @@ function main() {
                 app.preferences.maximizeCompatibility = needMaximize;
             }
 
-			if (exportInfo.artboardShow && (exportInfo.singleArtboard == "0")) {
-				alert("No artboard selected!" +"\n" + "Select one from the dropdown menu");
-				return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
-			}
+            if (exportInfo.artboardShow && (exportInfo.singleArtboard == "0")) {
+                alert("No artboard selected!" + "\n" + "Select one from the dropdown menu");
+                return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
+            }
             // alert((exportInfo.selectionOnly && !compRef.selected)+" selected only")
             // if ((!exportInfo.useLayerComp == "0") && (!exportInfo.useLayerComp == "1")) {
             // alert(exportInfo.useLayerComp.value)
-            if ((exportInfo.useLayerComp == "0")||(exportInfo.useLayerComp == "1")) {
+            // alert(exportInfo.useLayerComp)
+            if ((exportInfo.useLayerComp == "0") || (exportInfo.useLayerComp == "1")) {
                 var nameCountObj = countCompsNames(docRef.layerComps);
                 for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
                     var compRef = docRef.layerComps[compsIndex];
@@ -278,9 +293,9 @@ function main() {
                 compsIndex = exportInfo.useLayerComp;
                 var nameCountObj = countCompsNames(docRef.layerComps);
                 if (exportInfo.useLayerComp == "1") {
-                    var compRef = docRef.layerComps[exportInfo.useLayerComp+2];
+                    var compRef = docRef.layerComps[exportInfo.useLayerComp + 2];
                 } else {
-                    var compRef = docRef.layerComps[exportInfo.useLayerComp-2];
+                    var compRef = docRef.layerComps[exportInfo.useLayerComp - 2];
                 }
                 compRef.apply();
                 exportComps(compsIndex, exportInfo, compRef, nameCountObj)
@@ -297,7 +312,7 @@ function main() {
             }
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
-                alert(strTitle + strAlertWasSuccessful + '\n' + exportInfo.destination);
+                alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
             }
 
             app.playbackDisplayDialogs = DialogModes.ALL;
@@ -307,7 +322,7 @@ function main() {
         if (DialogModes.NO != app.playbackDisplayDialogs) {
             alert(e);
         }
-        return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+        return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     }
 }
 
@@ -330,35 +345,35 @@ function settingDialog(exportInfo) {
     dlgMain.graphics.backgroundColor = brush;
     dlgMain.graphics.disabledBackgroundColor = brush;
 
-    dlgMain.orientation = 'column';
-    dlgMain.alignChildren = 'left';
+    dlgMain.orientation = "column";
+    dlgMain.alignChildren = "left";
 
     // -- top of the dialog, first line
     dlgMain.add("statictext", undefined, strLabelDestination);
 
     // -- two groups, one for left and one for right ok, cancel
     dlgMain.grpTop = dlgMain.add("group");
-    dlgMain.grpTop.orientation = 'row';
-    dlgMain.grpTop.alignChildren = 'top';
-    dlgMain.grpTop.alignment = 'fill';
+    dlgMain.grpTop.orientation = "row";
+    dlgMain.grpTop.alignChildren = "top";
+    dlgMain.grpTop.alignment = "fill";
 
     // -- group top left 
     dlgMain.grpTopLeft = dlgMain.grpTop.add("group");
-    dlgMain.grpTopLeft.orientation = 'column';
-    dlgMain.grpTopLeft.alignChildren = 'left';
-    dlgMain.grpTopLeft.alignment = 'fill';
+    dlgMain.grpTopLeft.orientation = "column";
+    dlgMain.grpTopLeft.alignChildren = "left";
+    dlgMain.grpTopLeft.alignment = "fill";
 
     // -- the second line in the dialog
     dlgMain.grpSecondLine = dlgMain.grpTopLeft.add("group");
-    dlgMain.grpSecondLine.orientation = 'row';
-    dlgMain.grpSecondLine.alignChildren = 'center';
+    dlgMain.grpSecondLine.orientation = "row";
+    dlgMain.grpSecondLine.alignChildren = "center";
 
     dlgMain.etDestination = dlgMain.grpSecondLine.add("edittext", undefined, exportInfo.destination.toString());
-    dlgMain.etDestination.preferredSize = [220,20];
+    dlgMain.etDestination.preferredSize = [350, 20];
     // dlgMain.etDestination.preferredSize.width = StrToIntWithDefault(stretDestination, 250);
 
     dlgMain.btnBrowse = dlgMain.grpSecondLine.add("button", undefined, strButtonBrowse);
-    dlgMain.btnBrowse.preferredSize = [50,25];
+    dlgMain.btnBrowse.preferredSize = [50, 25];
     dlgMain.btnBrowse.onClick = function() {
         var defaultFolder = dlgMain.etDestination.text;
         var testFolder = new Folder(dlgMain.etDestination.text);
@@ -375,14 +390,14 @@ function settingDialog(exportInfo) {
 
     // -- the fourth line in the dialog
     // dlgMain.etFileNamePrefix = dlgMain.grpTopLeft.add("edittext", undefined, exportInfo.fileNamePrefix.toString());
-    // dlgMain.etFileNamePrefix.alignment = 'fill';
+    // dlgMain.etFileNamePrefix.alignment = "fill";
     // dlgMain.etFileNamePrefix.preferredSize.width = StrToIntWithDefault( stretDestination, 160 );
     dlgMain.grFileNamePrefixGr = dlgMain.grpTopLeft.add("group");
     dlgMain.grFileNamePrefixGr.orientation = "row";
     dlgMain.grFileNamePrefixGr.spacing = 5;
     dlgMain.grFileNamePrefixGr.margins = 5;
     dlgMain.etFileNamePrefix = dlgMain.grFileNamePrefixGr.add("edittext", undefined, exportInfo.fileNamePrefix.toString());
-    dlgMain.etFileNamePrefix.preferredSize = [250, 20];
+    dlgMain.etFileNamePrefix.preferredSize = [350, 20];
     dlgMain.cbFileNamePrefixIndex = dlgMain.grFileNamePrefixGr.add("checkbox", undefined, "Index");
     dlgMain.cbFileNamePrefixIndex.alignment = "right";
     dlgMain.cbFileNamePrefixIndex.value = exportInfo.prefixIndex;
@@ -394,64 +409,77 @@ function settingDialog(exportInfo) {
     dlgMain.cbSelection = dlgMain.grLayComps.add("checkbox", undefined, strCheckboxSelectionOnly);
     dlgMain.cbSelection.value = exportInfo.selectionOnly;
     dlgMain.cbSelection.enabled = exportInfo.selectionOnly;
+    // if (!dlgMain.ddUseComp.items["0"]) dlgMain.cbSelection.enabled = true
     dlgMain.cbSelection.helpTip = strcbSelectionHelp;
-    
+
     // dlgMain.pnlUseArtboard.pnlABoptions.add("statictext", undefined, strLabelUseArtboard);
     dlgMain.ddUseComp = dlgMain.grLayComps.add("dropdownlist");
     dlgMain.ddUseComp.preferredSize.width = StrToIntWithDefault(strddUseArtBoard, 120);
-    dlgMain.ddUseComp.alignment = 'right';
+    dlgMain.ddUseComp.alignment = "right";
     dlgMain.ddUseComp.helpTip = strddUseComp;
-    
+
     // var UseComp = countCompsNames(docRef.layerComps);
     var UseCompCount = docRef.layerComps.length;
-	dlgMain.ddUseComp.add("item", "All");
-	dlgMain.ddUseComp.add("item", "Selected");
+    dlgMain.ddUseComp.add("item", "All");
+    dlgMain.ddUseComp.add("item", "Selected");
     for (UseCompIndex = 0; UseCompIndex < UseCompCount; UseCompIndex++) {
         dlgMain.ddUseComp.add("item", docRef.layerComps[UseCompIndex].name);
     }
+
     // Set menu too default
     if (!exportInfo.selectionOnly) dlgMain.ddUseComp.items["0"].selected = true;
     if (exportInfo.selectionOnly) dlgMain.ddUseComp.items["1"].selected = true;
+
+    dlgMain.ddUseComp.onChange = function() {
+        if ((dlgMain.cbSelection.value) && (dlgMain.ddUseComp.items["0"].selected)) {
+            dlgMain.cbSelection.value = false;
+        }
+        if ((!dlgMain.cbSelection.value) && (dlgMain.ddUseComp.items["1"].selected)) {
+            dlgMain.cbSelection.value = true;
+        } else {
+            dlgMain.cbSelection.value = false;
+        }
+    }
 
     dlgMain.cbComment = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddCompComment);
     dlgMain.cbComment.value = exportInfo.addCompComment;
 
     // - Added ArtBoard names optional
-    dlgMain.cbIncludeArtboardName = dlgMain.grpTopLeft.add('checkbox', undefined, strIncludeArtboardName);
+    dlgMain.cbIncludeArtboardName = dlgMain.grpTopLeft.add("checkbox", undefined, strIncludeArtboardName);
     dlgMain.cbIncludeArtboardName.value = exportInfo.inclArtboardName;
     dlgMain.cbIncludeArtboardName.enabled = exportInfo.artboardsEnab;
 
     // - Picker custom Artboard
     // -- now a dropdown list
     // enable checkbox functionality
-	dlgMain.cbArtboardShow = dlgMain.grpTopLeft.add('checkbox', undefined, strShowUseArtboard);
-	dlgMain.cbArtboardShow.value = exportInfo.artboardShow;
+    dlgMain.cbArtboardShow = dlgMain.grpTopLeft.add("checkbox", undefined, strShowUseArtboard);
+    dlgMain.cbArtboardShow.value = exportInfo.artboardShow;
     dlgMain.cbArtboardShow.enabled = exportInfo.artboardsEnab;
 
     dlgMain.pnlUseArtboard = dlgMain.grpTopLeft.add("group");
-    dlgMain.pnlUseArtboard.alignment = 'left';
+    dlgMain.pnlUseArtboard.alignment = "left";
 
     // dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.grpTopLeft.add("panel", undefined, strLabelUseArtboard);
     dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.grpTopLeft.add("group");
     // dlgMain.pnlUseArtboard.pnlABoptions.spacing = 1;
     // dlgMain.pnlUseArtboard.pnlABoptions.margins = 1;
-    dlgMain.pnlUseArtboard.pnlABoptions.alignment = 'left';
-    
+    dlgMain.pnlUseArtboard.pnlABoptions.alignment = "left";
+
 
     dlgMain.pnlUseArtboard.pnlABoptions.add("statictext", undefined, strLabelUseArtboard);
     dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard = dlgMain.pnlUseArtboard.pnlABoptions.add("dropdownlist");
     dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.preferredSize.width = StrToIntWithDefault(strddUseArtBoard, 120);
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.alignment = 'left';
+    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.alignment = "left";
     var UseabAr = getABLayerInfo().reverse();
     var UseartbrdCount = UseabAr.length;
-	// UseartbrdCount += 1; //add 1 to compensentate None in menu
-	dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.add("item", "None");
+    // UseartbrdCount += 1; //add 1 to compensentate None in menu
+    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.add("item", "None");
     for (UseartbrdIndex = 0; UseartbrdIndex < UseartbrdCount; UseartbrdIndex++) {
         dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.add("item", UseabAr[UseartbrdIndex].name);
     }
-	// -- now the options panel that changes
-    //   dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.pnlUseArtboard.add('panel', undefined, strArtboardPanelOptions)
-    //   dlgMain.pnlUseArtboard.pnlABoptions.alignment = 'fill'
+    // -- now the options panel that changes
+    //   dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.pnlUseArtboard.add("panel", undefined, strArtboardPanelOptions)
+    //   dlgMain.pnlUseArtboard.pnlABoptions.alignment = "fill"
 
     dlgMain.cbArtboardShow.onClick = function() {
         if (dlgMain.cbArtboardShow.value) {
@@ -464,18 +492,19 @@ function settingDialog(exportInfo) {
     }
     // Also hide artboard options
     if (!dlgMain.cbArtboardShow.value) dlgMain.pnlUseArtboard.pnlABoptions.hide();
-	// Set menu too default
-	dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items["0"].selected = true;
-	// dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items[chosenArtboard].selected = true;
-	
+    // Set menu too default
+    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items["0"].selected = true;
+    // dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items[chosenArtboard].selected = true;
+
     // -- the sixth line is the panel
     dlgMain.pnlFileType = dlgMain.grpTopLeft.add("panel", undefined, strLabelFileType);
-    dlgMain.pnlFileType.alignment = 'fill';
+    // dlgMain.pnlFileType.alignment = "fill";
+    dlgMain.pnlFileType.alignChildren = ["top", "left"];
 
     // -- now a dropdown list
     dlgMain.ddFileType = dlgMain.pnlFileType.add("dropdownlist");
     dlgMain.ddFileType.preferredSize.width = StrToIntWithDefault(strddFileType, 100);
-    dlgMain.ddFileType.alignment = 'left';
+    dlgMain.ddFileType.alignment = "left";
 
     dlgMain.ddFileType.add("item", "BMP");
     dlgMain.ddFileType.add("item", "JPEG");
@@ -528,24 +557,40 @@ function settingDialog(exportInfo) {
     dlgMain.ddFileType.items[exportInfo.fileType].selected = true;
 
     // -- now after all the radio buttons
-    dlgMain.grICCGr = dlgMain.pnlFileType.add("group");
-    dlgMain.grICCGr.orientation = "row";
-    // dlgMain.grICCGr.spacing = 0;
-    // dlgMain.grICCGr.margins = 5;
-    
-    dlgMain.cbIcc = dlgMain.grICCGr.add("checkbox", undefined, strCheckboxIncludeICCProfile);
-    dlgMain.cbIcc.value = exportInfo.icc;
-    // dlgMain.cbIcc.alignment = 'left';
+    var grICCGr = dlgMain.pnlFileType.add("group");
+        grICCGr.orientation = "row";
+        grICCGr.alignChildren = ["left", "top"];
+    // dlgMain.grICCGr.orientation = "column";
+    // dlgMain.grICCGr.alignment = "left";
+        grICCGr.spacing = 10;
+        grICCGr.margins = 5;
 
-    dlgMain.cbConvertICC = dlgMain.grICCGr.add( 'checkbox', undefined, strConvertICC );
-    dlgMain.cbConvertICC.value = exportInfo.convicc;
-    dlgMain.cbConvertICC.alignment = 'right';
-    dlgMain.cbConvertICC.helpTip = strConvertICCHelp;
+
+    var grICC = grICCGr.add("group");
+        grICC.orientation = "column";
+        grICC.alignChildren = ["left", "top"];
+
+    var cbIcc = grICC.add("checkbox", undefined, strCheckboxIncludeICCProfile);
+        cbIcc.value = exportInfo.icc;
+        strICCprofile = grICC.add("statictext", undefined);
+        strICCprofile.text = app.activeDocument.colorProfileName;
+    // dlgMain.cbIcc.alignment = "left";
+
+    var cbConvertICC = grICCGr.add("checkbox", undefined, strConvertICC);
+    	cbConvertICC.value = exportInfo.convicc;
+    // 	cbConvertICC.alignment = "right";
+    	cbConvertICC.helpTip = strConvertICCHelp;
+
+    var cbTrimLayers = grICCGr.add("checkbox", undefined, strCheckboxTrimLayers);
+    	cbTrimLayers.value = exportInfo.convicc;
+    // 	cbTrimLayers.alignment = "right";
+    	cbTrimLayers.helpTip = strCheckboxTrimLayersHelp;
+
 
     // -- now the options panel that changes
     dlgMain.pnlFileType.pnlOptions = dlgMain.pnlFileType.add("panel", undefined, "Options");
-    dlgMain.pnlFileType.pnlOptions.alignment = 'fill';
-    dlgMain.pnlFileType.pnlOptions.orientation = 'stack';
+    dlgMain.pnlFileType.pnlOptions.alignment = "fill";
+    dlgMain.pnlFileType.pnlOptions.orientation = "stack";
     dlgMain.pnlFileType.pnlOptions.preferredSize.height = StrToIntWithDefault(strpnlOptions, 100);
 
     // PSD options
@@ -581,14 +626,19 @@ function settingDialog(exportInfo) {
 
     // TIFF options
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions = dlgMain.pnlFileType.pnlOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.orientation = 'column';
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.orientation = "column";
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.visible = (exportInfo.fileType == tiffIndex);
 
-    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.tiffTrans = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.add("checkbox", undefined, strCheckboxTIFFTransparency.toString());
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.rowtiff = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.add("group");
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.rowtiff.orientation = "row";
+
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.cbTIFFlayers = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.rowtiff.add("checkbox", undefined, strTIFFlayers.toString());
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.cbTIFFlayers.value = exportInfo.tiffLayers;
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.tiffTrans = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.rowtiff.add("checkbox", undefined, strCheckboxTIFFTransparency.toString());
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.tiffTrans.value = exportInfo.tiffTransparency;
 
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.alignment = 'left';
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.alignment = "left";
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.add("statictext", undefined, strLabelImageCompression);
 
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.ddCompression = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.add("dropdownlist");
@@ -608,7 +658,7 @@ function settingDialog(exportInfo) {
     }
 
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.alignment = 'left';
+    dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.alignment = "left";
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.stQuality = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.add("statictext", undefined, strLabelQuality);
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.add("edittext", undefined, exportInfo.tiffJpegQuality.toString());
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality.preferredSize.width = StrToIntWithDefault(stretQuality, 30);
@@ -644,11 +694,11 @@ function settingDialog(exportInfo) {
 
     // PDF options
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions = dlgMain.pnlFileType.pnlOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.orientation = 'column';
+    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.orientation = "column";
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.visible = (exportInfo.fileType == pdfIndex);
 
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression = dlgMain.pnlFileType.pnlOptions.grpPDFOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression.alignment = 'left';
+    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression.alignment = "left";
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression.add("statictext", undefined, strLabelEncoding);
 
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression.rbZip = dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpCompression.add("radiobutton", undefined, "ZIP");
@@ -664,7 +714,7 @@ function settingDialog(exportInfo) {
     }
 
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality = dlgMain.pnlFileType.pnlOptions.grpPDFOptions.add("group");
-    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.alignment = 'left';
+    dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.alignment = "left";
 
     dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.stQuality = dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.add("statictext", undefined, strLabelQuality);
 
@@ -738,8 +788,8 @@ function settingDialog(exportInfo) {
 
     // the right side of the dialog, the ok and cancel buttons
     dlgMain.grpTopRight = dlgMain.grpTop.add("group");
-    dlgMain.grpTopRight.orientation = 'column';
-    dlgMain.grpTopRight.alignChildren = 'fill';
+    dlgMain.grpTopRight.orientation = "column";
+    dlgMain.grpTopRight.alignChildren = "fill";
 
     dlgMain.btnRun = dlgMain.grpTopRight.add("button", undefined, strButtonRun);
     dlgMain.btnRun.onClick = function() {
@@ -768,26 +818,26 @@ function settingDialog(exportInfo) {
 
     // the bottom of the dialog
     dlgMain.grpBottom = dlgMain.add("group");
-    dlgMain.grpBottom.orientation = 'column';
-    dlgMain.grpBottom.alignChildren = 'left';
-    dlgMain.grpBottom.alignment = 'fill';
+    dlgMain.grpBottom.orientation = "column";
+    dlgMain.grpBottom.alignChildren = "left";
+    dlgMain.grpBottom.alignment = "fill";
 
     dlgMain.pnlHelp = dlgMain.grpBottom.add("panel");
-    dlgMain.pnlHelp.alignment = 'fill';
+    dlgMain.pnlHelp.alignment = "fill";
 
     dlgMain.etHelp = dlgMain.pnlHelp.add("statictext", undefined, strHelpText, {
         multiline: true
     });
-    dlgMain.etHelp.alignment = 'fill';
+    dlgMain.etHelp.alignment = "fill";
 
     // do not allow anything except for numbers 0-9
-    //dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.etQuality.addEventListener ('keydown', NumericEditKeyboardHandler);
+    //dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.etQuality.addEventListener ("keydown", NumericEditKeyboardHandler);
 
     // do not allow anything except for numbers 0-9
-    //dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality.addEventListener ('keydown', NumericEditKeyboardHandler);
+    //dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality.addEventListener ("keydown", NumericEditKeyboardHandler);
 
     // do not allow anything except for numbers 0-9
-    //dlgMain.pnlFileType.pnlOptions.grpJPEGOptions.etQuality.addEventListener ('keydown', NumericEditKeyboardHandler);
+    //dlgMain.pnlFileType.pnlOptions.grpJPEGOptions.etQuality.addEventListener ("keydown", NumericEditKeyboardHandler);
 
     dlgMain.onShow = function() {
         dlgMain.ddFileType.onChange();
@@ -815,18 +865,19 @@ function settingDialog(exportInfo) {
     exportInfo.artboardsEnab = false; // always use true at start
     exportInfo.inclArtboardName = dlgMain.cbIncludeArtboardName.value;
     exportInfo.artboardShow = dlgMain.cbArtboardShow.value;
-	// if (exportInfo.artboardShow) {
-	try {
-		exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
-		exportInfo.singleArtboard = dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.selection.index;
-	} catch (e) {
-		// alert("No artboard selected!" + "\n" + e);
-	}
-	// }
+    // if (exportInfo.artboardShow) {
+    try {
+        exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
+        exportInfo.singleArtboard = dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.selection.index;
+    } catch (e) {
+        // alert("No artboard selected!" + "\n" + e);
+    }
+    // }
 
     exportInfo.fileType = dlgMain.ddFileType.selection.index;
-    exportInfo.icc = dlgMain.cbIcc.value;
-    exportInfo.convicc = dlgMain.cbConvertICC.value;
+    exportInfo.icc = cbIcc.value;
+    exportInfo.convicc = cbConvertICC.value;
+    exportInfo.trimLayers = cbTrimLayers.value;
     exportInfo.jpegQuality = dlgMain.pnlFileType.pnlOptions.grpJPEGOptions.etQuality.text;
     exportInfo.psdLayers = dlgMain.pnlFileType.pnlOptions.grpPSDOptions.cbPSDlayers.value;
     exportInfo.psdMaxComp = dlgMain.pnlFileType.pnlOptions.grpPSDOptions.cbMax.value;
@@ -835,6 +886,7 @@ function settingDialog(exportInfo) {
     exportInfo.png24Transparency = dlgMain.pnlFileType.pnlOptions.grpPNG24Options.png24Trans.value;
     exportInfo.png24Interlaced = dlgMain.pnlFileType.pnlOptions.grpPNG24Options.png24Inter.value;
     exportInfo.tiffTransparency = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.tiffTrans.value;
+    exportInfo.tiffLayers = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.cbTIFFlayers.value;
     index = dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpCompression.ddCompression.selection.index;
     if (index == compNoneIndex) {
         exportInfo.tiffCompression = TIFFEncoding.NONE;
@@ -908,7 +960,7 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         if (isSelection) exportInfo.selectionOnly = true;
         if (!isSelection) exportInfo.selectionOnly = false;
         // }
-        if (artboardAvail) exportInfo.artboardsEnab = true;    
+        if (artboardAvail) exportInfo.artboardsEnab = true;
         if (!artboardAvail) exportInfo.artboardsEnab = false;
         // }
         // Currently uses stored data
@@ -925,20 +977,23 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         if (artboardAvail) exportInfo.inclArtboardName = true;
         if (!artboardAvail) exportInfo.inclArtboardName = false;
     } else {
-        // Currently uses stored data
+        //Currently uses stored data
         exportInfo.destination = new String("");
         exportInfo.fileNamePrefix = new String("untitled_");
         exportInfo.prefixIndex = false;
+
         exportInfo.useLayerComp = 0;
         exportInfo.addCompComment = false;
         exportInfo.singleArtboard = 0;
         exportInfo.fileType = psdIndex;
         exportInfo.icc = false;
         exportInfo.convicc = false;
+        exportInfo.trimLayers = false;
         exportInfo.jpegQuality = 8;
         exportInfo.psdLayers = false;
         exportInfo.psdMaxComp = true;
         exportInfo.tiffTransparency = false;
+        exportInfo.tiffLayers = false;
         exportInfo.tiffCompression = TIFFEncoding.NONE;
         exportInfo.tiffJpegQuality = 8;
         exportInfo.pdfEncoding = PDFEncoding.JPEG;
@@ -968,16 +1023,16 @@ function logToHeadLights(eventRecord) {
 // Input: an initialized object
 // Return: a modified object
 /// ////////////////////////////////////////////////////////////////////////////
-function initFileNameDestination (exportInfo) {
-  try {
-    exportInfo.destination = Folder(app.activeDocument.fullName.parent).fsName // destination folder
-    var tmp = app.activeDocument.fullName.name
-    var pieces = tmp.split('.')
-    exportInfo.fileNamePrefix = decodeURI(pieces.length == 1 ? tmp : pieces.slice(0, pieces.length - 1).join('.')) // filename body part
-  } catch (someError) {
-    exportInfo.destination = new String('')
-    exportInfo.fileNamePrefix = app.activeDocument.name // filename body part
-  }
+function initFileNameDestination(exportInfo) {
+    try {
+        exportInfo.destination = Folder(app.activeDocument.fullName.parent).fsName // destination folder
+        var tmp = app.activeDocument.fullName.name
+        var pieces = tmp.split(".")
+        exportInfo.fileNamePrefix = decodeURI(pieces.length == 1 ? tmp : pieces.slice(0, pieces.length - 1).join(".")) // filename body part
+    } catch (someError) {
+        exportInfo.destination = new String("")
+        exportInfo.fileNamePrefix = app.activeDocument.name // filename body part
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1014,7 +1069,7 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".tif");
                 tiffSaveOptions = new TiffSaveOptions();
                 TiffSaveOptions.transparency = exportInfo.icc;
-                // TiffSaveOptions.layers = exportInfo.icc;
+                TiffSaveOptions.layers = exportInfo.tiffLayers;
                 tiffSaveOptions.embedColorProfile = exportInfo.icc;
                 tiffSaveOptions.imageCompression = exportInfo.tiffCompression;
                 if (TIFFEncoding.JPEG == exportInfo.tiffCompression) tiffSaveOptions.jpegQuality = exportInfo.tiffJpegQuality;
@@ -1102,6 +1157,18 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 desc4.putBoolean(id34, exportInfo.png8Transparency);
                 var id35 = charIDToTypeID("Mtt ");
                 desc4.putBoolean(id35, true); //matte
+                // embed icc
+                var idEICC = charIDToTypeID( "EICC" ); 
+                desc4.putBoolean( idEICC, exportInfo.icc );
+                // Convert to sRGB
+                var idSWch = charIDToTypeID( "SWch" );
+                var idSTch = charIDToTypeID( "STch" );
+                if (exportInfo.convicc) {
+                    var doConvert = charIDToTypeID( "CHsR" );
+                } else {
+                    var doConvert = charIDToTypeID( "CHDc" );
+                }
+                desc4.putEnumerated( idSWch, idSTch, doConvert );
                 var id36 = charIDToTypeID("MttR"); //matte color
                 desc4.putInteger(id36, 255);
                 var id37 = charIDToTypeID("MttG");
@@ -1149,6 +1216,18 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 desc4.putBoolean(id15, exportInfo.png24Transparency);
                 var id16 = charIDToTypeID("Mtt ");
                 desc4.putBoolean(id16, true);
+                // embed icc
+                var idEICC = charIDToTypeID( "EICC" ); 
+                desc4.putBoolean( idEICC, exportInfo.icc );
+                // Convert to sRGB
+                var idSWch = charIDToTypeID( "SWch" );
+                var idSTch = charIDToTypeID( "STch" );
+                if (exportInfo.convicc) {
+                    var doConvert = charIDToTypeID( "CHsR" );
+                } else {
+                    var doConvert = charIDToTypeID( "CHDc" );
+                }
+                desc4.putEnumerated( idSWch, idSTch, doConvert );
                 var id17 = charIDToTypeID("MttR");
                 desc4.putInteger(id17, 255);
                 var id18 = charIDToTypeID("MttG");
@@ -1171,6 +1250,31 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 var id26 = stringIDToTypeID("SaveForWeb");
                 desc3.putObject(id7, id26, desc4);
                 executeAction(id6, desc3, DialogModes.NO);
+                
+                // docRef.bitsPerChannel = BitsPerChannelType.EIGHT;
+                // Doesnt store anythign concerning colorprofiles
+                // BUG with PS when profile is sRGB, yiou cant embed it???
+                // var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".png");
+                // pngSaveOptions = new PNGSaveOptions();
+                // // pngSaveOptions.format = SaveDocumentType.PNG; //-24 //JPEG, COMPUSERVEGIF, PNG-8, BMP 
+                // pngSaveOptions.embedColorProfile = exportInfo.icc;
+                // pngSaveOptions.interlaced = exportInfo.png24Interlaced; 
+                // // pngSaveOptions.quality = exportInfo.jpegQuality;
+                // docRef.saveAs(saveFile, pngSaveOptions, true, Extension.LOWERCASE);
+
+                // https://stackoverflow.com/questions/5664750/photoshop-script-exportdocument
+                // Always adds sRGB automatically > why???
+                // docExportOptions = new ExportOptionsSaveForWeb; 
+                // docExportOptions.format = SaveDocumentType.PNG; //-24 //JPEG, COMPUSERVEGIF, PNG-8, BMP 
+                // docExportOptions.transparency = exportInfo.png24Transparency; 
+                // docExportOptions.blur = 0.0; 
+                // docExportOptions.includeProfile = exportInfo.icc; 
+                // docExportOptions.interlaced = exportInfo.png24Interlaced; 
+                // docExportOptions.optimized = true ;
+                // docExportOptions.quality = 100;
+                // docExportOptions.PNG8 = false;
+                // var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".png");
+                // docRef.exportDocument(saveFile,ExportType.SAVEFORWEB,docExportOptions) 
                 break;
             default:
                 if (DialogModes.NO != app.playbackDisplayDialogs) {
@@ -1195,7 +1299,7 @@ function saveFile(docRef, fileNameBody, exportInfo) {
 // Return: activeDocument is now in sRGB profile
 ///////////////////////////////////////////////////////////////////////////////
 function ConvertTosRGBProfile() {
-	app.activeDocument.convertProfile("sRGB IEC61966-2.1", Intent.RELATIVECOLORIMETRIC, true, true);
+    app.activeDocument.convertProfile("sRGB IEC61966-2.1", Intent.RELATIVECOLORIMETRIC, true, true);
 }
 
 
@@ -1233,18 +1337,18 @@ function objectToDescriptor(o, s, f) {
     }
     var d = new ActionDescriptor;
     var l = o.reflect.properties.length;
-    d.putString(app.charIDToTypeID('Msge'), s);
+    d.putString(app.charIDToTypeID("Msge"), s);
     for (var i = 0; i < l; i++) {
-		// Gives properties of items
-		// alert(o.reflect.properties[i].toString() + "\n" + typeof(o.reflect.properties[i].toString()+ "\n" + typeof(v)))
-		// alert(f)
+        // Gives properties of items
+        // alert(o.reflect.properties[i].toString() + "\n" + typeof(o.reflect.properties[i].toString()+ "\n" + typeof(v)))
+        // alert(f)
         var k = o.reflect.properties[i].toString();
         if (k == "__proto__" || k == "__count__" || k == "__class__" || k == "reflect")
             continue;
         var v = o[k];
         k = app.stringIDToTypeID(k);
-		// alert(typeof(v))
-		// alert(v + "\n" + typeof(v))
+        // alert(typeof(v))
+        // alert(v + "\n" + typeof(v))
         switch (typeof(v)) {
             case "boolean":
                 d.putBoolean(k, v);
@@ -1256,9 +1360,9 @@ function objectToDescriptor(o, s, f) {
                 d.putDouble(k, v);
                 break;
             case "object":
-                alert(k+" "+v)
-            //     d.putObject(k, v);
-            //     break;    
+                alert(k + " " + v)
+                //     d.putObject(k, v);
+                //     break;    
             default:
                 {
                     if (v instanceof UnitValue) {
@@ -1267,12 +1371,12 @@ function objectToDescriptor(o, s, f) {
                         uc["%"] = charIDToTypeID("#Prc"); // unitPercent
                         d.putUnitDouble(k, uc[v.type], v.value);
                     } else {
-						// if (typeof(v) === "object"){
-						// 	break; // Dirty fix for OBJECT type > dont know why this is
-						// } else {
+                        // if (typeof(v) === "object"){
+                        // 	break; // Dirty fix for OBJECT type > dont know why this is
+                        // } else {
                         // 	throw (new Error("Unsupported type in objectToDescriptor " + typeof(v)));
-						// }
-                        throw (new Error("Unsupported type in objectToDescriptor " + typeof(v) + "\n"+v+" - Error exportinfo: "+o.reflect.properties[i].toString()));
+                        // }
+                        throw (new Error("Unsupported type in objectToDescriptor " + typeof(v) + "\n" + v + " - Error exportinfo: " + o.reflect.properties[i].toString()));
                     }
                 }
         }
@@ -1298,7 +1402,7 @@ function objectToDescriptor(o, s, f) {
 function descriptorToObject(o, d, s, f) {
     var l = d.count;
     if (l) {
-        var keyMessage = app.charIDToTypeID('Msge');
+        var keyMessage = app.charIDToTypeID("Msge");
         if (d.hasKey(keyMessage) && (s != d.getString(keyMessage))) return;
     }
     for (var i = 0; i < l; i++) {
@@ -1427,7 +1531,7 @@ function NumericEditKeyboardHandler(event) {
             /*    Notify user of invalid input: make sure NOT
             	to put up an alert dialog or do anything which
             	requires user interaction, because that
-            	interferes with preventing the 'default'
+            	interferes with preventing the "default"
             	action for the keydown event */
             app.beep();
         }
@@ -1443,20 +1547,20 @@ function KeyHasModifier(event) {
 }
 
 function KeyIsNumeric(event) {
-    return (event.keyName >= '0') && (event.keyName <= '9') && !KeyHasModifier(event);
+    return (event.keyName >= "0") && (event.keyName <= "9") && !KeyHasModifier(event);
 }
 
 function KeyIsDelete(event) {
     //    Shift-delete is ok
-    return ((event.keyName == 'Backspace') || (event.keyName == 'Delete')) && !(event.ctrlKey);
+    return ((event.keyName == "Backspace") || (event.keyName == "Delete")) && !(event.ctrlKey);
 }
 
 function KeyIsLRArrow(event) {
-    return ((event.keyName == 'Left') || (event.keyName == 'Right')) && !(event.altKey || event.metaKey);
+    return ((event.keyName == "Left") || (event.keyName == "Right")) && !(event.altKey || event.metaKey);
 }
 
 function KeyIsTabEnterEscape(event) {
-    return event.keyName == 'Tab' || event.keyName == 'Enter' || event.keyName == 'Escape';
+    return event.keyName == "Tab" || event.keyName == "Enter" || event.keyName == "Escape";
 }
 
 
@@ -1471,11 +1575,11 @@ function KeyIsTabEnterEscape(event) {
 ///////////////////////////////////////////////////////////////////////////////
 function getABLayerInfo() {
     var abArr = [];
-	abArr.visible = [];
+    abArr.visible = [];
 
     var ref = new ActionReference();
-    ref.putEnumerated(charIDToTypeID('Dcmn'), charIDToTypeID('Ordn'), charIDToTypeID('Trgt'));
-    var count = executeActionGet(ref).getInteger(charIDToTypeID('NmbL')) + 1; //  number of total layers in the document including start AND stop of groups.  So layersets get counted twice. 
+    ref.putEnumerated(charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt"));
+    var count = executeActionGet(ref).getInteger(charIDToTypeID("NmbL")) + 1; //  number of total layers in the document including start AND stop of groups.  So layersets get counted twice. 
     var infoList = [];
     try {
         activeDocument.backgroundLayer;
@@ -1486,28 +1590,28 @@ function getABLayerInfo() {
 
     for (i; i < count; i++) {
         ref = new ActionReference();
-        ref.putIndex(charIDToTypeID('Lyr '), i);
+        ref.putIndex(charIDToTypeID("Lyr "), i);
         var desc = executeActionGet(ref);
         // this gets the layer name 
-        var layerName = desc.getString(charIDToTypeID('Nm  '));
+        var layerName = desc.getString(charIDToTypeID("Nm  "));
         if (layerName.match(/^<\/Layer group/)) continue; // removes "/Layer Groups" from the listed output.   (like if ID = "/Layer Group" then skip)         
         var name = layerName
-        var id = desc.getInteger(stringIDToTypeID('layerID'));
-        var index = desc.getInteger(charIDToTypeID('ItmI'));
-        var layerType = typeIDToStringID(desc.getEnumerationValue(stringIDToTypeID('layerSection')));
-        var isLayerSet = (layerType == 'layerSectionContent') ? false : true;
-        var isVisible = desc.getBoolean(charIDToTypeID('Vsbl'));
+        var id = desc.getInteger(stringIDToTypeID("layerID"));
+        var index = desc.getInteger(charIDToTypeID("ItmI"));
+        var layerType = typeIDToStringID(desc.getEnumerationValue(stringIDToTypeID("layerSection")));
+        var isLayerSet = (layerType == "layerSectionContent") ? false : true;
+        var isVisible = desc.getBoolean(charIDToTypeID("Vsbl"));
         // if (isLayerSet && isVisible) {
         if (isLayerSet && isVisible) {
             var artBoardLay = {};
             artBoardLay.result = false;
-            var ab_actDesc = desc.getObjectValue(stringIDToTypeID('artboard'));
-            var abrect_desc = ab_actDesc.getObjectValue(stringIDToTypeID('artboardRect'));
+            var ab_actDesc = desc.getObjectValue(stringIDToTypeID("artboard"));
+            var abrect_desc = ab_actDesc.getObjectValue(stringIDToTypeID("artboardRect"));
             //~     // get bounds of artboard. 
-            atop = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID('Top ')))
-            aleft = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID('Left')));
-            abottom = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID('Btom')));
-            aright = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID('Rght')));
+            atop = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Top ")))
+            aleft = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Left")));
+            abottom = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Btom")));
+            aright = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Rght")));
 
             // add the 4 values together, and if they are 0  then I know its not an actual artboard. 
             var checVal = (atop + aleft + abottom + aright);
@@ -1520,8 +1624,8 @@ function getABLayerInfo() {
                 artBoardLay.right = aright;
                 artBoardLay.AMid = id;
                 artBoardLay.index = index;
-				artBoardLay.visible = isVisible;
-				// alert(artBoardLay.name+" "+artBoardLay.visible)
+                artBoardLay.visible = isVisible;
+                // alert(artBoardLay.name+" "+artBoardLay.visible)
                 //alert([name, isLayerSet, atop,aleft,abottom,aright, name, id, index, visible] )
                 abArr.push(artBoardLay);
             }
@@ -1534,31 +1638,31 @@ function getABLayerInfo() {
 // Function: getSelectedLayersAMIdx
 // Usage: extract a list of index values of all the selected layers.
 // Input:: (active document.) s
-// Return: array of indexes ID's of selected layers.
+// Return: array of indexes ID"s of selected layers.
 /// ////////////////////////////////////////////////////////////////////////////
-function getSelectedLayersAMIdx (srcDoc) {
-  var selectedLayers = new Array()
-  var ref = new ActionReference()
-  // get a number list of selected artLayers in the document
-  ref.putProperty(app.charIDToTypeID('Prpr'), stringIDToTypeID('targetLayers'))
-  ref.putEnumerated(charIDToTypeID('Dcmn'), charIDToTypeID('Ordn'), charIDToTypeID('Trgt'))
-  // what do I want to do this this list? Define an description of an action.
-  var desc = executeActionGet(ref)
-  // if the selected object has the "Target Layers" key (only works CS4+)
-  if (desc.hasKey(stringIDToTypeID('targetLayers'))) {
-    desc = desc.getList(stringIDToTypeID('targetLayers'))
-    var c = desc.count
-    var selectedLayers = [] // for each
-    for (var i = 0; i < c; i++) {
-      try {
-        srcDoc.backgroundLayer // try to select a background layer, if I can then adjust the index counting. (Background layers change index counitng of all layers by 1)
-        selectedLayers.push(desc.getReference(i).getIndex())
-      } catch (e) {
-        selectedLayers.push(desc.getReference(i).getIndex() + 1)
-      }
+function getSelectedLayersAMIdx(docRef) {
+    var selectedLayers = new Array()
+    var ref = new ActionReference()
+    // get a number list of selected artLayers in the document
+    ref.putProperty(app.charIDToTypeID("Prpr"), stringIDToTypeID("targetLayers"))
+    ref.putEnumerated(charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt"))
+    // what do I want to do this this list? Define an description of an action.
+    var desc = executeActionGet(ref)
+    // if the selected object has the "Target Layers" key (only works CS4+)
+    if (desc.hasKey(stringIDToTypeID("targetLayers"))) {
+        desc = desc.getList(stringIDToTypeID("targetLayers"))
+        var c = desc.count
+        var selectedLayers = [] // for each
+        for (var i = 0; i < c; i++) {
+            try {
+                docRef.backgroundLayer // try to select a background layer, if I can then adjust the index counting. (Background layers change index counitng of all layers by 1)
+                selectedLayers.push(desc.getReference(i).getIndex())
+            } catch (e) {
+                selectedLayers.push(desc.getReference(i).getIndex() + 1)
+            }
+        }
     }
-  }
-  return selectedLayers
+    return selectedLayers
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
@@ -1567,35 +1671,35 @@ function getSelectedLayersAMIdx (srcDoc) {
 // Input: array of AM idicies.
 // Return: Return list of AMid of actual artboards. (removing any layers that are not artboards and artboards that are hidden)
 /// ////////////////////////////////////////////////////////////////////////////
-function getArtBoards (inArray) {
-  var infoList = []
+function getArtBoards(inArray) {
+    var infoList = []
 
-  for (var i = 0; i < inArray.length; i++) {
-    var obj = {}
-    ref = new ActionReference()
-    ref.putIndex(charIDToTypeID('Lyr '), inArray[i])
-    var desc = executeActionGet(ref)
-    var Id = desc.getInteger(stringIDToTypeID('layerID'))
-    var name = desc.getString(charIDToTypeID('Nm  '))
-    var isArtboard = desc.getBoolean(stringIDToTypeID('artboardEnabled'))
-    var isVisible = desc.getBoolean(charIDToTypeID('Vsbl'))
-    if (isArtboard && isVisible) {
-      obj.name = name
-      obj.AMid = Id
-      obj.visible = isVisible
-      var ab_actDesc = desc.getObjectValue(stringIDToTypeID('artboard'))
-      obj.bgType = ab_actDesc.getInteger(stringIDToTypeID('artboardBackgroundType'))
-      var abBgColor_desc = ab_actDesc.getObjectValue(charIDToTypeID('Clr '))
-      obj.bgColor = [
-        abBgColor_desc.getDouble(charIDToTypeID('Rd  ')),
-        abBgColor_desc.getDouble(charIDToTypeID('Grn ')),
-        abBgColor_desc.getDouble(charIDToTypeID('Bl  '))
-      ]
-      obj.empty = isArtboardEmpty(inArray[i])
-      infoList.push(obj)
+    for (var i = 0; i < inArray.length; i++) {
+        var obj = {}
+        ref = new ActionReference()
+        ref.putIndex(charIDToTypeID("Lyr "), inArray[i])
+        var desc = executeActionGet(ref)
+        var Id = desc.getInteger(stringIDToTypeID("layerID"))
+        var name = desc.getString(charIDToTypeID("Nm  "))
+        var isArtboard = desc.getBoolean(stringIDToTypeID("artboardEnabled"))
+        var isVisible = desc.getBoolean(charIDToTypeID("Vsbl"))
+        if (isArtboard && isVisible) {
+            obj.name = name
+            obj.AMid = Id
+            obj.visible = isVisible
+            var ab_actDesc = desc.getObjectValue(stringIDToTypeID("artboard"))
+            obj.bgType = ab_actDesc.getInteger(stringIDToTypeID("artboardBackgroundType"))
+            var abBgColor_desc = ab_actDesc.getObjectValue(charIDToTypeID("Clr "))
+            obj.bgColor = [
+                abBgColor_desc.getDouble(charIDToTypeID("Rd  ")),
+                abBgColor_desc.getDouble(charIDToTypeID("Grn ")),
+                abBgColor_desc.getDouble(charIDToTypeID("Bl  "))
+            ]
+            obj.empty = isArtboardEmpty(inArray[i])
+            infoList.push(obj)
+        }
     }
-  }
-  return infoList
+    return infoList
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
@@ -1604,13 +1708,13 @@ function getArtBoards (inArray) {
 // Input: index of artboard
 // Return: boolean
 /// ////////////////////////////////////////////////////////////////////////////
-function isArtboardEmpty (index) {
-  var ref = new ActionReference()
-  ref.putProperty(charIDToTypeID('Prpr'), stringIDToTypeID('layerSection'))
-  ref.putIndex(charIDToTypeID('Lyr '), index - 1)
-  var desc = executeActionGet(ref)
-  var sectionEnum = desc.getEnumerationValue(stringIDToTypeID('layerSection'))
-  return stringIDToTypeID('layerSectionEnd') == sectionEnum
+function isArtboardEmpty(index) {
+    var ref = new ActionReference()
+    ref.putProperty(charIDToTypeID("Prpr"), stringIDToTypeID("layerSection"))
+    ref.putIndex(charIDToTypeID("Lyr "), index - 1)
+    var desc = executeActionGet(ref)
+    var sectionEnum = desc.getEnumerationValue(stringIDToTypeID("layerSection"))
+    return stringIDToTypeID("layerSectionEnd") == sectionEnum
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1631,7 +1735,7 @@ function getActiveDocRulerOrigin() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function: countCompsNames
-// Usage:  Count the comps' names collecting duplicates
+// Usage:  Count the comps" names collecting duplicates
 // Input: collection of comps
 // Return: object with names as keys and as values, an object with total count and an index (for incrementing during file naming)
 ///////////////////////////////////////////////////////////////////////////////
@@ -1665,8 +1769,8 @@ function countCompsNames(list) {
 function selectedCompsConfigError(docLayerComps, exportInfo) {
     if (exportInfo.selectionOnly) {
         var compsCount = docLayerComps.length;
-        for ( compsIndex = 0; compsIndex < compsCount; compsIndex++ ) {
-            var compRef = docLayerComps[ compsIndex ];
+        for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
+            var compRef = docLayerComps[compsIndex];
             if (compRef.selected) {
                 return false; // all good, we have work to do
             }
@@ -1674,6 +1778,165 @@ function selectedCompsConfigError(docLayerComps, exportInfo) {
         return true; // none found selected, this is bad, no work to do
     }
     return false; // option off
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+function deselectLayers() {
+    //from scriptlistener plugin
+    var idselectNoLayers = stringIDToTypeID("selectNoLayers");
+    var desc7 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref3 = new ActionReference();
+    var idLyr = charIDToTypeID("Lyr ");
+    var idOrdn = charIDToTypeID("Ordn");
+    var idTrgt = charIDToTypeID("Trgt");
+    ref3.putEnumerated(idLyr, idOrdn, idTrgt);
+    desc7.putReference(idnull, ref3);
+    executeAction(idselectNoLayers, desc7, DialogModes.NO);
+    // refresh();
+    // app.activeDocument.layers.selectAll()
+    // executeAction( idselectNoLayers, desc7, DialogModes.NO );
+    // alert("deselect")
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+function getLayerInfo(docRef) {
+    var ref = new ActionReference()
+    ref.putEnumerated(charIDToTypeID("Dcmn"), charIDToTypeID("Ordn"), charIDToTypeID("Trgt"))
+    var count = executeActionGet(ref).getInteger(charIDToTypeID("NmbL")) + 1 // number of total layers in the document including start AND stop of groups. So layersets get counted twice.
+    var infoList = []
+    try {
+        docRef.backgroundLayer;
+        var i = 0
+    } catch (e) {
+        var i = 1
+    }
+
+    for (i; i < count; i++) {
+        newLay = {};
+        ref = new ActionReference();
+        ref.putIndex(charIDToTypeID("Lyr "), i);
+        var desc = executeActionGet(ref);
+        newLay.id = desc.getInteger(stringIDToTypeID("layerID"));
+        infoList.push(newLay)
+    }
+    return infoList;
+}
+
+
+/// ////////////////////////////////////////////////////////////////////////////
+// Function: deleteByID
+// Usage: delete the layer with the supplied action ID
+// Input: ActionManagerID of a layer I wish to delete
+// Return: none (deleted layers)
+/// ////////////////////////////////////////////////////////////////////////////
+function deleteByID(ID) {
+    var ref = new ActionReference()
+    ref.putIdentifier(charIDToTypeID("Lyr "), ID)
+    var desc = new ActionDescriptor()
+    desc.putReference(charIDToTypeID("null"), ref)
+
+    desc.putBoolean(charIDToTypeID("MkVs"), false)
+    try {
+        executeAction(stringIDToTypeID("delete"), desc, DialogModes.NO)
+    } catch (e) {}
+}
+
+
+// From Layers to Files
+///////////////////////////////////////////////////////////////////////////////
+// Function: removeAllInvisibleArtLayers
+// Usage: remove all the invisible art layers, recursively
+// Input: document or layer set
+// Return: <none>, all layers that were invisible are now gone
+///////////////////////////////////////////////////////////////////////////////
+function removeAllInvisibleArtLayers(obj) {
+    infoList = [];
+    for (var i = obj.artLayers.length - 1; 0 <= i; i--) {
+        if (!obj.artLayers[i].visible) {
+            obj.artLayers[i].remove();
+        }
+    }
+    for (var i = obj.layerSets.length - 1; 0 <= i; i--) {
+        removeAllInvisibleArtLayers(obj.layerSets[i]);
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: removeAllEmptyLayerSets
+// Usage: find all empty layer sets and remove them, recursively
+// Input: document or layer set
+// Return: empty layer sets are now gone
+///////////////////////////////////////////////////////////////////////////////
+function removeAllEmptyLayerSets(obj) {
+    var foundEmpty = true;
+    for (var i = obj.layerSets.length - 1; 0 <= i; i--) {
+        if (removeAllEmptyLayerSets(obj.layerSets[i])) {
+            obj.layerSets[i].remove();
+        } else {
+            foundEmpty = false;
+        }
+    }
+    if (obj.artLayers.length > 0) {
+        foundEmpty = false;
+    }
+    return foundEmpty;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Function: zeroSuppress
+// Usage: return a string padded to digit(s)
+// Input: num to convert, digit count needed
+// Return: string padded to digit length
+///////////////////////////////////////////////////////////////////////////////
+function removeAllInvisible(docRef) {
+    // alert(getLayerInfo(docRef));
+    var getInfo = getLayerInfo(docRef);
+    getLayerInfo(docRef);
+    // alert(getInfo.length);
+    // getInfo[i].id
+    removeAllInvisibleArtLayers(docRef);
+    removeAllEmptyLayerSets(docRef);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Function: Delete Hidden Layers
+// Usage: Checks if layer is visible if false layer is removed
+// Input: Active Document layers
+// Return: Cleaned document
+///////////////////////////////////////////////////////////////////////////////
+
+function deleteHiddenLayers(docRef) {
+    // deselectLayers();
+    // https://www.ps-scripts.com/viewtopic.php?t=8834
+    var lyrHid = []
+    for (var n = docRef.layers.length - 1; n >= 0; n--) {
+        var thisLayer = docRef.layers[n];
+        if (thisLayer.visible == false) {
+            lyrHid.push(thisLayer.name)
+            // thisLayer.deselect = true;
+            // thisLayer.visible = true;
+            // thisLayer.remove();
+        }
+    }
+
+    // for (i = -1; i < lyrhid.lenght; i++){
+    // alert(lyrHid[i])
+    //     // docRef.activeLayer = docRef.layers.getByName(lyrhid[i]); 
+    //     // docRef.activeLayer.remove();
+    // }
+
+    // alert(lyrHid)
+    // alert(lyrHid[3]) 
+    items = lyrHid;
+    // alert(items)
+    alert(docRef.layers.getByName([lyrHid.length - 1]))
 }
 
 
@@ -1696,7 +1959,7 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
     //     if (DialogModes.NO != app.playbackDisplayDialogs) {
     //         alert(strAlertNoArtboardsFound);
     //     }
-        // return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+    // return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     // } else {    
     if (exportInfo.artboardShow) {
         var singAB = exportInfo.singleArtboard;
@@ -1712,7 +1975,7 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
             var abAr = false
             exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
         }
-    
+
     }
     // }
 }
@@ -1726,31 +1989,62 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj) {
-    // create duplicate doc and flatten to save memory. and processing time.  I already have all the data i need so don't need the layers anymore. 
+    // create duplicate doc and flatten to save memory. and processing time.  I already have all the data i need so don"t need the layers anymore. 
     var duppedDocument = app.activeDocument.duplicate();
-
+    // Deleta all Layer Comps > for when saving PSD & TIFF so we can clean them
     switch (exportInfo.fileType) {
         case png24Index:
+            if (exportInfo.trimLayers == true) {
+                duppedDocument.trim(TrimType.TRANSPARENT);
+            }
             if (exportInfo.png24Transparency) {
+                // alert(exportInfo.png24Transparency)
                 //do nothing
                 break;
+            } else {
+                duppedDocument.flatten();
             }
         case png8Index:
+            if (exportInfo.trimLayers == true) {
+                duppedDocument.trim(TrimType.TRANSPARENT);
+            }
             if (exportInfo.png8Transparency) {
                 //do nothing
                 break;
+            } else {
+                duppedDocument.flatten();
             }
         case tiffIndex:
-            if (exportInfo.tiffTransparency) {
+            if (exportInfo.trimLayers == true) {
+                duppedDocument.trim(TrimType.TRANSPARENT);
+            }
+            if ((exportInfo.tiffTransparency) || (exportInfo.tiffLayers)) {
+                if (exportInfo.tiffLayers) {
+                    docRef.layerComps.removeAll();
+                    removeAllInvisible(duppedDocument);
+                }
                 //do nothing
-                break;
-            }    
+                break; 
+            } else {
+                duppedDocument.flatten();
+            }
         case psdIndex:
+            if (exportInfo.trimLayers == true) {
+                duppedDocument.trim(TrimType.TRANSPARENT);
+            }
             if (exportInfo.psdLayers) {
+                docRef.layerComps.removeAll();
+                removeAllInvisible(duppedDocument);
                 //do nothing
                 break;
+            } else {
+                duppedDocument.flatten();
             }
         default:
+            if (exportInfo.trimLayers == true) {
+                duppedDocument.trim(TrimType.TRANSPARENT);
+            }
+            docRef.layerComps.removeAll();
             duppedDocument.flatten();
     }
 
@@ -1758,7 +2052,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
 
     var curRulOrigin = getActiveDocRulerOrigin();
     if (exportInfo.artboardShow) {
-	    artbrdIndex -= 1; // Minus 1 to compensentate None in menu
+        artbrdIndex -= 1; // Minus 1 to compensentate None in menu
     }
 
     // get crop region
@@ -1770,47 +2064,50 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         var cropRegion = [lt, tp, rt, bt];
         duppedDocument.crop(cropRegion);
     }
-	// alert(abAr[artbrdIndex].visible)
+    // alert(abAr[artbrdIndex].visible)
     if (duppedDocument.bitsPerChannel == duppedDocument.THIRTYTWO) duppedDocument.bitsPerChannel = duppedDocument.SIXTEEN;
 
     // Naming method from layercomps to Files + artboardnames
     var fileNameBody = exportInfo.fileNamePrefix;
     // fileNameBody += "_" + zeroSuppress(compsIndex, 4);
     // fileNameBody += "_" + compRef.name;
-    fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, "_"); // '/\:*?"<>|\r\n' -> '_'
+    fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, "-"); // "/\:*?"<>|\r\n" -> "-"
     if (exportInfo.inclArtboardName) {
         if (exportInfo.fileNamePrefix) {
-            fileNameBody += '_';
+            fileNameBody += "-";
         }
         fileNameBody += abAr[artbrdIndex].name;
     }
 
     if (exportInfo.prefixIndex) {
-		if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
-            fileNameBody += '_';
+        if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
+            fileNameBody += "-";
         }
-        fileNameBody += zeroSuppress(compsIndex, 4) + "_";
+        fileNameBody += zeroSuppress(compsIndex, 4) + "-";
         fileNameBody += compRef.name;
-    } else // not using prefix, but we'll still make sure each file name is unique
+    } else // not using prefix, but we"ll still make sure each file name is unique
     {
-		if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
-			fileNameBody += '_';
-		}
+        if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
+            fileNameBody += "-";
+        }
         fileNameBody += compRef.name;
         var nameEntry = nameCountObj[compRef.name];
         if (nameEntry.total > 1)
-            fileNameBody += '_' + nameEntry.nameIndex++;
+            fileNameBody += "-" + nameEntry.nameIndex++;
     }
     if ((null != compRef.comment) && exportInfo.addCompComment) {
         if (compRef.comment.length > 20) compRef.comment = compRef.comment.substring(0, 20);
-        fileNameBody += "_" + compRef.comment;
+        fileNameBody += "-" + compRef.comment;
     }
     if (fileNameBody.length > 120) fileNameBody = fileNameBody.substring(0, 120);
-    fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g,""); // '/\:*?"<>|\r\n' -> '_'
-    // Convert to sRGB if true
-    if ( exportInfo.convicc ) {
+    fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, ""); // "/\:*?"<>|\r\n" -> "-"
+
+    // alert("add icc: "+exportInfo.icc+" - conv icc: "+exportInfo.convicc)
+    // //Convert to sRGB if true
+    if (exportInfo.convicc) {
         ConvertTosRGBProfile();
     }
+
     saveFile(duppedDocument, fileNameBody, exportInfo);
     duppedDocument.close(SaveOptions.DONOTSAVECHANGES);
 }
