@@ -134,12 +134,12 @@ var cancelButtonID = 2;
 
 /*//////////////////////////////
 //  VERSION
-//  v14 - July 13 2020
+//  v15 - August 3 2020
 
 /*//////////////////////////////
 //  TODO
-    • Webexport > resize to 72
-    • Check convertsRGB, it does this on layered
+//    • Webexport > resize to 72
+//    • Check convertsRGB, it does this on layered
 
 
 // */
