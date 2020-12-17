@@ -47,8 +47,9 @@
 
 //////////////////////////////
 //  TODO
-//    • Webexport > resize to 72
-//    • Check convertsRGB, it does this on layered
+//  • Fix PSD export keep layers doesnt clean artboards.
+//  • Webexport > resize to 72
+//  • Check convertsRGB, it does this on layered
 
 ////////////////////////////////////////////////////////////
 
