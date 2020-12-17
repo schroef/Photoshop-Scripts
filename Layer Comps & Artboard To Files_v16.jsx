@@ -34,6 +34,26 @@
 */
 
 
+
+
+////////////////////////////////////////////////////////////
+//  VERSION
+//  v15 - August 3 2020
+
+//  v16 - 17122020
+//  Fixed
+//  - #146 1302 No such elelement > app.activeDocument.colorProfileName
+
+
+//////////////////////////////
+//  TODO
+//    • Webexport > resize to 72
+//    • Check convertsRGB, it does this on layered
+
+////////////////////////////////////////////////////////////
+
+
+
 // enable double clicking from the Macintosh Finder or the Windows Explorer
 #target photoshop
 
@@ -130,21 +150,6 @@ var compJPEGIndex = 3;
 // ok and cancel button
 var runButtonID = 1;
 var cancelButtonID = 2;
-
-
-/*//////////////////////////////
-//  VERSION
-//  v15 - August 3 2020
-
-//  v16 - 17122020
-//  Fixed
-//  - #146 1302 No such elelement > app.activeDocument.colorProfileName
-
-
-/*//////////////////////////////
-//  TODO
-//    • Webexport > resize to 72
-//    • Check convertsRGB, it does this on layered
 
 
 // */
