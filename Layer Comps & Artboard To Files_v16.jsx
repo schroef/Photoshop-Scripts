@@ -136,6 +136,11 @@ var cancelButtonID = 2;
 //  VERSION
 //  v15 - August 3 2020
 
+//  v16 - 17122020
+//  Fixed
+//  - #146 1302 No such elelement > app.activeDocument.colorProfileName
+
+
 /*//////////////////////////////
 //  TODO
 //    • Webexport > resize to 72
@@ -573,7 +578,13 @@ function settingDialog(exportInfo) {
     var cbIcc = grICC.add("checkbox", undefined, strCheckboxIncludeICCProfile);
         cbIcc.value = exportInfo.icc;
         strICCprofile = grICC.add("statictext", undefined);
-        strICCprofile.text = app.activeDocument.colorProfileName;
+        try {
+            strICCprofile.text = app.activeDocument.colorProfileName;
+        }
+        catch(e){
+        //   alert(e)
+            alert("Missing document Color Profile! \nScript will continou but export can look different");
+        }
     // dlgMain.cbIcc.alignment = "left";
 
     var cbConvertICC = grICCGr.add("checkbox", undefined, strConvertICC);
