@@ -316,7 +316,7 @@ function main() {
             return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script	
         } else {
 
-            var totalTime = new Timer(); // Timer Tom Ruark // Source: Getter.jsx
+            // var totalTime = new Timer(); // Timer Tom Ruark // Source: Getter.jsx
             
             app.activeDocument = app.documents[docName];
             docRef = app.activeDocument;
@@ -380,8 +380,8 @@ function main() {
         }
         return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     }
-    // app.runMenuItem(stringIDToTypeID('screenModeStandard'));
-    alert("Script Time: " + totalTime.getElapsed())
+    app.runMenuItem(stringIDToTypeID('screenModeStandard'));
+    // alert("Script Time: " + totalTime.getElapsed())
 }
 
 
