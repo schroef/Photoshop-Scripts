@@ -54,6 +54,13 @@
 
 ////////////////////////////////////////////////////////////
 //
+//  v1.2.0 - 06072021
+//  Fix
+//  - Try Fix artboard is ps 22.4.0
+//  - Missing export flattened method > accidently commented it out while testing layered methods
+//
+
+//
 //  v1.1.9 - 07012021
 //  Added
 //  - switch to fullscreen mode, ui doesnt need to update > seems faster
@@ -316,7 +323,9 @@ function main() {
             return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script	
         } else {
 
-            // var totalTime = new Timer(); // Timer Tom Ruark // Source: Getter.jsx
+            // Timer Tom Ruark 
+            // Source: Getter.jsx
+            var totalTime = new Timer();
             
             app.activeDocument = app.documents[docName];
             docRef = app.activeDocument;
@@ -336,7 +345,10 @@ function main() {
             // if ((!exportInfo.useLayerComp == "0") && (!exportInfo.useLayerComp == "1")) {
             // alert(exportInfo.useLayerComp.value)
             // alert(exportInfo.useLayerComp)
+            
+            // To fullscreen to speeds > ui doesnt need to be updated
             app.runMenuItem(stringIDToTypeID('screenModeFullScreen'));
+
             if ((exportInfo.useLayerComp == "0") || (exportInfo.useLayerComp == "1")) {
                 var nameCountObj = countCompsNames(docRef.layerComps);
                 for (compsIndex = 0; compsIndex < compsCount; compsIndex++) {
@@ -368,6 +380,7 @@ function main() {
             }
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
+                // alert("Script Time: " + totalTime.getElapsed())
                 alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
             }
 
@@ -381,7 +394,6 @@ function main() {
         return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     }
     app.runMenuItem(stringIDToTypeID('screenModeStandard'));
-    // alert("Script Time: " + totalTime.getElapsed())
 }
 
 
@@ -1712,6 +1724,11 @@ function getABLayerInfo() {
         var id = desc.getInteger(stringIDToTypeID("layerID"));
         var index = desc.getInteger(charIDToTypeID("ItmI"));
         var layerType = typeIDToStringID(desc.getEnumerationValue(stringIDToTypeID("layerSection")));
+        
+        // New check for artboard > since 2018 ps > source: ArtboardExport.inc
+        var isArtboard = desc.getBoolean(stringIDToTypeID("artboardEnabled"))
+
+        var isVisible = desc.getBoolean(charIDToTypeID("Vsbl"))
         var isLayerSet = (layerType == "layerSectionContent") ? false : true;
         var isVisible = desc.getBoolean(charIDToTypeID("Vsbl"));
         // if (isLayerSet && isVisible) {
@@ -2175,7 +2192,8 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.png24Transparency) {
-                    duppedDocument.flatten();
+                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    // duppedDocument.flatten();
                     // alert("DO IT PNG24")
                 }
             }
@@ -2189,7 +2207,8 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.png8Transparency) {
-                    duppedDocument.flatten();
+                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    // duppedDocument.flatten();
                     // alert("DO IT PNG8")
                 }
             }
@@ -2203,12 +2222,13 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                     // removeAllInvisible(duppedDocument);// slow
                     // hideOthers(abAr, artbrdIndex);// faster
                     // deleteHidden();//faster
+                    //do nothing
+                    break; 
                 }
-                //do nothing
-                break; 
             } else {
                 if ((!exportInfo.tiffTransparency) || (!exportInfo.tiffLayers)) {
-                    duppedDocument.flatten();
+                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    // duppedDocument.flatten();
                     // alert("DO IT TIFF")
                 }
             }
@@ -2225,7 +2245,8 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.psdLayers) {
-                    duppedDocument.flatten();
+                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    // duppedDocument.flatten();
                     // alert("DO IT PSD")
                 }
             }
@@ -2242,7 +2263,8 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.pdfLayers) {
-                    duppedDocument.flatten();
+                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    // duppedDocument.flatten();
                     // alert("DO IT PSD")
                 }
             }
@@ -2252,11 +2274,32 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
             }
             docRef.layerComps.removeAll();
             // alert("DO IT DEFAULT")
+            // alert(abAr)
+            // alert(artbrdIndex)
+            // alert(abAr[artbrdIndex].name)
+            // alert("default swtich")
+            // Select active AB so we can crop after flattening
+            flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+            // activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
+            // selectAll();
             duppedDocument.flatten();
     }
 }
 
+function flattenDocSelAB(duppedDocument, abAr, artbrdIndex){
+    activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
+    selectAll();
+    duppedDocument.flatten();
+}
 
+function cropFromSelection () {
+  // =======================================================
+  var idcrop = stringIDToTypeID('crop')
+  var desc79 = new ActionDescriptor()
+  var iddelete = stringIDToTypeID('delete')
+  desc79.putBoolean(iddelete, true)
+  executeAction(idcrop, desc79, DialogModes.NO)
+}
 
 function cropFromMask () {
   var idset = stringIDToTypeID('set')
@@ -2429,10 +2472,9 @@ function selectAll(){
 function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj) {
     // create duplicate doc and flatten to save memory. and processing time.  I already have all the data i need so don"t need the layers anymore. 
     var duppedDocument = app.activeDocument.duplicate();
-    
-    // switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex)
-    switchFileType(exportInfo, duppedDocument)
-
+    // alert(abAr[artbrdIndex].name)
+    switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex)
+    // switchFileType(exportInfo, duppedDocument)
     app.activeDocument = duppedDocument;
 
     var curRulOrigin = getActiveDocRulerOrigin();
@@ -2455,20 +2497,25 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
             } catch(e){
                 alert(e)
             }
-        } else {
-            var lt = -curRulOrigin[0] + abAr[artbrdIndex].left;
-            var tp = -curRulOrigin[1] + abAr[artbrdIndex].top;
-            var rt = (abAr[artbrdIndex].right - abAr[artbrdIndex].left) + lt;
-            var bt = (abAr[artbrdIndex].bottom - abAr[artbrdIndex].top) + tp;
-            var cropRegion = [lt, tp, rt, bt];
-            // alert(cropRegion)
-            
-            duppedDocument.crop(cropRegion);
         }
+        // Crop for layered files
+        // } else {
+        //     var lt = -curRulOrigin[0] + abAr[artbrdIndex].left;
+        //     var tp = -curRulOrigin[1] + abAr[artbrdIndex].top;
+        //     var rt = (abAr[artbrdIndex].right - abAr[artbrdIndex].left) + lt;
+        //     var bt = (abAr[artbrdIndex].bottom - abAr[artbrdIndex].top) + tp;
+        //     var cropRegion = [lt, tp, rt, bt];
+        //     // alert(cropRegion)
+            
+        //     duppedDocument.crop(cropRegion);
+        // }
         // if((exportInfo.psdLayers && exportInfo.fileType == psdIndex) || (exportInfo.tiffLayers && exportInfo.fileType == tiffIndex)||(exportInfo.png24Transparency && exportInfo.fileType == png24Index)||(exportInfo.png8Transparency&& exportInfo.fileType == png8Index)){
         //     duppedDocument.trim(TrimType.TRANSPARENT); // extra check
         // }
-        // cropFromMask();
+        // activeDocument.layers.getByName(abAr[artbrdIndex].name);
+        // selectAll();
+        cropFromSelection(); // Crops from excisting selection
+        // cropFromMask(); // crops from everythinng in layerset
         // cleanArtboards();
         
     }
