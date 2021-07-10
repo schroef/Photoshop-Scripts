@@ -1,5 +1,5 @@
-# Photoshop
-Collection of scripts, info data will be added.
+# Photoshop Scripts
+Collection of Adobe Photoshop scripts, info data will be added.
 
 ## Layercomps & Artboards to Files
 
