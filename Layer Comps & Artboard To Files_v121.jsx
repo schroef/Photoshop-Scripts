@@ -386,7 +386,7 @@ function main() {
             }
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
-                alert("Script Time: " + totalTime.getElapsed())
+                //alert("Script Time: " + totalTime.getElapsed())
                 alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
             }
 
