@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.0.0.24
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.0
 */
 
 /*
@@ -53,6 +53,12 @@
 
 
 ////////////////////////////////////////////////////////////
+//
+//  v1.2.1 - 12072021
+//  Fix
+//  - Issue 002 > results in error checking artboard names before dialog shows
+//
+
 //
 //  v1.2.0 - 06072021
 //  Fix
@@ -380,7 +386,7 @@ function main() {
             }
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
-                // alert("Script Time: " + totalTime.getElapsed())
+                alert("Script Time: " + totalTime.getElapsed())
                 alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
             }
 
@@ -1733,31 +1739,33 @@ function getABLayerInfo() {
         var isVisible = desc.getBoolean(charIDToTypeID("Vsbl"));
         // if (isLayerSet && isVisible) {
         if (isLayerSet && isVisible) {
-            var artBoardLay = {};
-            artBoardLay.result = false;
-            var ab_actDesc = desc.getObjectValue(stringIDToTypeID("artboard"));
-            var abrect_desc = ab_actDesc.getObjectValue(stringIDToTypeID("artboardRect"));
-            //~     // get bounds of artboard. 
-            atop = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Top ")))
-            aleft = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Left")));
-            abottom = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Btom")));
-            aright = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Rght")));
+            if(isArtboard){
+                var artBoardLay = {};
+                artBoardLay.result = false;
+                var ab_actDesc = desc.getObjectValue(stringIDToTypeID("artboard"));
+                var abrect_desc = ab_actDesc.getObjectValue(stringIDToTypeID("artboardRect"));
+                //~     // get bounds of artboard. 
+                atop = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Top ")))
+                aleft = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Left")));
+                abottom = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Btom")));
+                aright = parseInt(abrect_desc.getUnitDoubleValue(charIDToTypeID("Rght")));
 
-            // add the 4 values together, and if they are 0  then I know its not an actual artboard. 
-            var checVal = (atop + aleft + abottom + aright);
-            if (checVal != 0) {
-                artBoardLay.result = true;
-                artBoardLay.name = name;
-                artBoardLay.top = atop;
-                artBoardLay.left = aleft;
-                artBoardLay.bottom = abottom;
-                artBoardLay.right = aright;
-                artBoardLay.AMid = id;
-                artBoardLay.index = index;
-                artBoardLay.visible = isVisible;
-                // alert(artBoardLay.name+" "+artBoardLay.visible)
-                //alert([name, isLayerSet, atop,aleft,abottom,aright, name, id, index, visible] )
-                abArr.push(artBoardLay);
+                // add the 4 values together, and if they are 0  then I know its not an actual artboard. 
+                var checVal = (atop + aleft + abottom + aright);
+                if (checVal != 0) {
+                    artBoardLay.result = true;
+                    artBoardLay.name = name;
+                    artBoardLay.top = atop;
+                    artBoardLay.left = aleft;
+                    artBoardLay.bottom = abottom;
+                    artBoardLay.right = aright;
+                    artBoardLay.AMid = id;
+                    artBoardLay.index = index;
+                    artBoardLay.visible = isVisible;
+                    // alert(artBoardLay.name+" "+artBoardLay.visible)
+                    //alert([name, isLayerSet, atop,aleft,abottom,aright, name, id, index, visible] )
+                    abArr.push(artBoardLay);
+                }
             }
         }
     };
