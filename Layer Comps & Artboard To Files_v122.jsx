@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.0
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.2
 */
 
 /*
@@ -53,6 +53,12 @@
 
 
 ////////////////////////////////////////////////////////////
+//
+//  v1.2.2 - 06092021
+//  Fix
+//  - Issue wuth flattened files single artboards and layercomps export other then JPG
+//
+
 //
 //  v1.2.1 - 12072021
 //  Fix
@@ -386,7 +392,7 @@ function main() {
             }
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
-                //alert("Script Time: " + totalTime.getElapsed())
+                // alert("Script Time: " + totalTime.getElapsed())
                 alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
             }
 
@@ -1353,6 +1359,7 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 // Convert to sRGB
                 var idSWch = charIDToTypeID( "SWch" );
                 var idSTch = charIDToTypeID( "STch" );
+                // alert(exportInfo.convicc)
                 if (exportInfo.convicc) {
                     var doConvert = charIDToTypeID( "CHsR" );
                 } else {
@@ -2200,9 +2207,10 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.png24Transparency) {
-                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
                     // alert("DO IT PNG24")
+                    break;
                 }
             }
             
@@ -2215,9 +2223,10 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.png8Transparency) {
-                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
                     // alert("DO IT PNG8")
+                    break;
                 }
             }
         case tiffIndex:
@@ -2235,9 +2244,10 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 }
             } else {
                 if ((!exportInfo.tiffTransparency) || (!exportInfo.tiffLayers)) {
-                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
                     // alert("DO IT TIFF")
+                    break;
                 }
             }
         case psdIndex:
@@ -2253,9 +2263,10 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.psdLayers) {
-                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
                     // alert("DO IT PSD")
+                    break;
                 }
             }
         case pdfIndex:
@@ -2271,9 +2282,10 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 break;
             } else {
                 if (!exportInfo.pdfLayers) {
-                    // flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+                    flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
-                    // alert("DO IT PSD")
+                    // alert("DO IT PDF")
+                    break;
                 }
             }
         default:
@@ -2287,6 +2299,7 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
             // alert(abAr[artbrdIndex].name)
             // alert("default swtich")
             // Select active AB so we can crop after flattening
+            // alert("flatten")
             flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
             // activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
             // selectAll();
@@ -2298,6 +2311,7 @@ function flattenDocSelAB(duppedDocument, abAr, artbrdIndex){
     activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
     selectAll();
     duppedDocument.flatten();
+    // alert("doc flattened")
 }
 
 function cropFromSelection () {
@@ -2483,6 +2497,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     // alert(abAr[artbrdIndex].name)
     switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex)
     // switchFileType(exportInfo, duppedDocument)
+    // alert("switched filetype check")
     app.activeDocument = duppedDocument;
 
     var curRulOrigin = getActiveDocRulerOrigin();
