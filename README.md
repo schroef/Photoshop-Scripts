@@ -13,4 +13,5 @@ This is an additional version of Photoshop "layercomps to files". This version w
 
 1. Download the latest <b>[release](https://github.com/schroef/Photoshop-Scripts/releases)</b>
 2. Downloaded & unzip file .
-3. Move jsx file to folder: '''Photoshop VERSION > Presets > Scripts''' or '''File > Scripts > Browse''' pick the scripts.
+3. Move jsx file to folder: ```Photoshop VERSION > Presets > Scripts``` or ```File > Scripts > Browse``` pick the scripts.
+4. From the dialog window you can choose the settings, layerscomps & artboards.
