@@ -54,6 +54,16 @@
 
 ////////////////////////////////////////////////////////////
 //
+//  v1.2.3 - 10092021
+//  Fix
+//  - Hotfix for single AB export getting wrong indexnumber due to Dropdown index being different from actual AB index
+//  
+//  Added
+//  - Checkbox to give alert when done. 
+//
+
+
+//
 //  v1.2.2 - 06092021
 //  Fix
 //  - Issue wuth flattened files single artboards and layercomps export other then JPG
@@ -190,6 +200,7 @@ var strShowUseArtboard = localize("$$$/JavaScripts/ArtboardsToFiles/ShowUseArtbo
 var strddUseArtBoard = localize("$$$/locale_specific/JavaScripts/LayerCompsToABFiles/DDUseArtboard=100");
 var strLabelUseArtboard = localize("$$$/JavaScripts/LayerCompsToABFiles/UseArtboard=Choose Artboard");
 var strArtboardPanelOptions = localize("$$$/JavaScripts/ArtboardsToFiles/Options=Options:")
+var strAlertComplete = localize("$$$/JavaScripts/ArtboardsToFiles/AlertComplete=Alert on completion")
 
 // the drop down list indexes for file type
 var bmpIndex = 0;
@@ -393,7 +404,9 @@ function main() {
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
                 // alert("Script Time: " + totalTime.getElapsed())
-                alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
+                if (exportInfo.alertComplete){
+                    alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
+                }
             }
 
             app.playbackDisplayDialogs = DialogModes.ALL;
@@ -915,12 +928,20 @@ function settingDialog(exportInfo) {
     dlgMain.grpBottom.alignment = "fill";
 
     dlgMain.pnlHelp = dlgMain.grpBottom.add("panel");
+    dlgMain.pnlHelp.orientation = "column";
+    dlgMain.pnlHelp.alignChildren = "left";
     dlgMain.pnlHelp.alignment = "fill";
+    // dlgMain.pnlHelp.alignment = "fill";
 
+    // Alert on completion
+    dlgMain.cbAlertComplete = dlgMain.pnlHelp.add("checkbox", undefined, strAlertComplete);
+    dlgMain.cbAlertComplete.value = exportInfo.alertComplete;
+    
     dlgMain.etHelp = dlgMain.pnlHelp.add("statictext", undefined, strHelpText, {
         multiline: true
     });
     dlgMain.etHelp.alignment = "fill";
+
 
     // do not allow anything except for numbers 0-9
     //dlgMain.pnlFileType.pnlOptions.grpPDFOptions.grpQuality.etQuality.addEventListener ("keydown", NumericEditKeyboardHandler);
@@ -957,6 +978,7 @@ function settingDialog(exportInfo) {
     exportInfo.artboardsEnab = false; // always use true at start
     exportInfo.inclArtboardName = dlgMain.cbIncludeArtboardName.value;
     exportInfo.artboardShow = dlgMain.cbArtboardShow.value;
+    exportInfo.alertComplete = dlgMain.cbAlertComplete.value;
     // if (exportInfo.artboardShow) {
     try {
         exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
@@ -1116,6 +1138,7 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         exportInfo.destination = new String("");
         exportInfo.fileNamePrefix = new String("untitled_");
         exportInfo.prefixIndex = false;
+        exportInfo.alertComplete = false;
 
         exportInfo.useLayerComp = 0;
         exportInfo.addCompComment = false;
@@ -2107,6 +2130,7 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
     // return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
     // } else {    
     if (exportInfo.artboardShow) {
+        // alert(exportInfo.singleArtboard)
         var singAB = exportInfo.singleArtboard;
         // alert (abAr+" - Artboard - SingAB - " + singAB)
         exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
@@ -2495,15 +2519,25 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     // create duplicate doc and flatten to save memory. and processing time.  I already have all the data i need so don"t need the layers anymore. 
     var duppedDocument = app.activeDocument.duplicate();
     // alert(abAr[artbrdIndex].name)
+
+    // Fix single AB export
+    if (exportInfo.artboardShow) {
+        artbrdIndex -= 1; // Minus 1 to compensentate None in menu
+    }
+    // alert(artbrdIndex)
+    // alert(exportInfo.artboardShow)
     switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex)
     // switchFileType(exportInfo, duppedDocument)
     // alert("switched filetype check")
     app.activeDocument = duppedDocument;
 
     var curRulOrigin = getActiveDocRulerOrigin();
+
+    // Dropdown menu index correction
     if (exportInfo.artboardShow) {
         artbrdIndex -= 1; // Minus 1 to compensentate None in menu
     }
+    // alert(artbrdIndex)
     // alert("start crop")
     //active index should be set
     // alert("test dupli")
@@ -2544,6 +2578,12 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     }
     // alert("end crop crop")
     // alert(abAr[artbrdIndex].visible)
+    
+    // Reset ABindex after we corrected so name getts exported correct
+    if (exportInfo.artboardShow) {
+        artbrdIndex += 1; // Minus 1 to compensentate None in menu
+    }
+
     if (duppedDocument.bitsPerChannel == duppedDocument.THIRTYTWO) duppedDocument.bitsPerChannel = duppedDocument.SIXTEEN;
 
     // Naming method from layercomps to Files + artboardnames
