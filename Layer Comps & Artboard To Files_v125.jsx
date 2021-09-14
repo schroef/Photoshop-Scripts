@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.4
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.5
 */
 
 /*
@@ -54,10 +54,17 @@
 
 ////////////////////////////////////////////////////////////
 //
+//  v1.2.5 - 14092021
+//  Added
+//  - Option to add Suffix in file name
+//
+
+//
 //  v1.2.4 - 14092021
 //  Added
 //  - Checkbox to open destination when done. 
 //  - Checkbox to add/leave out layer comp name
+//
 
 //
 //  v1.2.3 - 10092021
@@ -144,13 +151,14 @@ $.localize = true;
 //=================================================================
 
 // UI strings to be localized
-var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export");
+var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export Layer Comps & Artboards");
 var strButtonRun = localize("$$$/JavaScripts/LayerCompsToABFiles/Run=Run");
 var strButtonCancel = localize("$$$/JavaScripts/LayerCompsToABFiles/Cancel=Cancel");
 var strHelpText = localize("$$$/JavaScripts/LayerCompsToABFiles/Help=Please specify the format and location for saving each layer comp as a file.");
 var strLabelDestination = localize("$$$/JavaScripts/LayerCompsToABFiles/Destination=Destination:");
 var strButtonBrowse = localize("$$$/JavaScripts/LayerCompsToABFiles/Browse=&Browse...");
 var strLabelFileNamePrefix = localize("$$$/JavaScripts/LayerCompsToABFiles/FileNamePrefix=File Name Prefix:");
+var strLabelFileNameSuffix = localize("$$$/JavaScripts/LayerCompsToABFiles/FileNameSuffix=File Name Suffix:");
 var strCheckboxSelectionOnly = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedOnly=&Selected Layer Comps Only");
 var strcbSelectionHelp = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedHelp=Uses selected Layer Lomp only");
 var strddUseComp = localize("$$$/JavaScripts/LayerCompsToABFiles/DDuseComp=Select Layer Comp from document");
@@ -467,23 +475,43 @@ function settingDialog(exportInfo) {
     dlgMain.orientation = "column";
     dlgMain.alignChildren = "left";
 
-    // -- top of the dialog, first line
-    dlgMain.add("statictext", undefined, strLabelDestination);
 
     // -- two groups, one for left and one for right ok, cancel
     dlgMain.grpTop = dlgMain.add("group");
     dlgMain.grpTop.orientation = "row";
     dlgMain.grpTop.alignChildren = "top";
     dlgMain.grpTop.alignment = "fill";
+    // dlgMain.grpTop.spacing = 5;
+    // dlgMain.grpTop.margins = 5;
 
     // -- group top left 
     dlgMain.grpTopLeft = dlgMain.grpTop.add("group");
     dlgMain.grpTopLeft.orientation = "column";
     dlgMain.grpTopLeft.alignChildren = "left";
     dlgMain.grpTopLeft.alignment = "fill";
+    // dlgMain.grpTopLeft.spacing = 10;
+    // dlgMain.grpTopLeft.margins = 5;
+
+    // Panel 1
+    dlgMain.pnlFiles = dlgMain.grpTopLeft.add("panel", undefined, "Filename & Destination");
+    dlgMain.pnlFiles.orientation = "column";
+    dlgMain.pnlFiles.alignChildren = "left";
+    dlgMain.pnlFiles.alignment = "fill";
+    dlgMain.pnlFiles.spacing = 15;
+    dlgMain.pnlFiles.margins = 15;
+
+    // -- the first line in the dialog
+    dlgMain.grpFirstLine = dlgMain.pnlFiles.add("group");
+    dlgMain.grpFirstLine.orientation = "row";
+    dlgMain.grpFirstLine.alignChildren = "center";
+    // dlgMain.grpFirstLine.spacing = 0;
+    // dlgMain.grpFirstLine.margins = 0;
+
+    // -- top of the dialog, first line
+    dlgMain.grpFirstLine.add("statictext", undefined, strLabelDestination);
 
     // -- the second line in the dialog
-    dlgMain.grpSecondLine = dlgMain.grpTopLeft.add("group");
+    dlgMain.grpSecondLine = dlgMain.pnlFiles.add("group");
     dlgMain.grpSecondLine.orientation = "row";
     dlgMain.grpSecondLine.alignChildren = "center";
 
@@ -505,24 +533,42 @@ function settingDialog(exportInfo) {
     }
 
     // -- the third line in the dialog
-    dlgMain.grpTopLeft.add("statictext", undefined, strLabelFileNamePrefix);
+    dlgMain.grpThirdLine = dlgMain.pnlFiles.add("group");
+    dlgMain.grpThirdLine.orientation = "row";
+    dlgMain.grpThirdLine.alignChildren = "center";
+    dlgMain.pnlFiles.add("statictext", undefined, strLabelFileNamePrefix);
 
     // -- the fourth line in the dialog
     // dlgMain.etFileNamePrefix = dlgMain.grpTopLeft.add("edittext", undefined, exportInfo.fileNamePrefix.toString());
     // dlgMain.etFileNamePrefix.alignment = "fill";
     // dlgMain.etFileNamePrefix.preferredSize.width = StrToIntWithDefault( stretDestination, 160 );
-    dlgMain.grFileNamePrefixGr = dlgMain.grpTopLeft.add("group");
+    dlgMain.grFileNamePrefixGr = dlgMain.pnlFiles.add("group");
     dlgMain.grFileNamePrefixGr.orientation = "row";
     dlgMain.grFileNamePrefixGr.spacing = 5;
-    dlgMain.grFileNamePrefixGr.margins = 5;
+    dlgMain.grFileNamePrefixGr.margins = 0;
     dlgMain.etFileNamePrefix = dlgMain.grFileNamePrefixGr.add("edittext", undefined, exportInfo.fileNamePrefix.toString());
     dlgMain.etFileNamePrefix.preferredSize = [350, 20];
     dlgMain.cbFileNamePrefixIndex = dlgMain.grFileNamePrefixGr.add("checkbox", undefined, "Index");
     dlgMain.cbFileNamePrefixIndex.alignment = "right";
     dlgMain.cbFileNamePrefixIndex.value = exportInfo.prefixIndex;
 
+    dlgMain.pnlFiles.add("statictext", undefined, strLabelFileNameSuffix);
+    dlgMain.grFileNameSuffixGr = dlgMain.pnlFiles.add("group");
+    dlgMain.grFileNameSuffixGr.orientation = "row";
+    dlgMain.grFileNameSuffixGr.spacing = 5;
+    dlgMain.grFileNameSuffixGr.margins = 0;
+    dlgMain.etFileNameSuffix = dlgMain.grFileNameSuffixGr.add("edittext", undefined, exportInfo.fileNameSuffix.toString());
+    dlgMain.etFileNameSuffix.preferredSize = [350, 20];
+
+
+    // Panel 2 Options
+    dlgMain.pnlOptions = dlgMain.grpTopLeft.add("panel", undefined, "Options");
+    dlgMain.pnlOptions.orientation = "column";
+    dlgMain.pnlOptions.alignChildren = "left";
+    dlgMain.pnlOptions.alignment = "fill";
+
     // -- the fifth line in the dialog
-    dlgMain.grLayComps = dlgMain.grpTopLeft.add("group");
+    dlgMain.grLayComps = dlgMain.pnlOptions.add("group");
     dlgMain.grLayComps.orientation = "row";
 
     dlgMain.cbSelection = dlgMain.grLayComps.add("checkbox", undefined, strCheckboxSelectionOnly);
@@ -560,29 +606,29 @@ function settingDialog(exportInfo) {
         }
     }
 
-    dlgMain.cbLyrCompName = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddLyrCompName);
+    dlgMain.cbLyrCompName = dlgMain.pnlOptions.add("checkbox", undefined, strCheckboxAddLyrCompName);
     dlgMain.cbLyrCompName.value = exportInfo.addLyrCompName;
 
-    dlgMain.cbComment = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddCompComment);
+    dlgMain.cbComment = dlgMain.pnlOptions.add("checkbox", undefined, strCheckboxAddCompComment);
     dlgMain.cbComment.value = exportInfo.addCompComment;
 
     // - Added ArtBoard names optional
-    dlgMain.cbIncludeArtboardName = dlgMain.grpTopLeft.add("checkbox", undefined, strIncludeArtboardName);
+    dlgMain.cbIncludeArtboardName = dlgMain.pnlOptions.add("checkbox", undefined, strIncludeArtboardName);
     dlgMain.cbIncludeArtboardName.value = exportInfo.inclArtboardName;
     dlgMain.cbIncludeArtboardName.enabled = exportInfo.artboardsEnab;
 
     // - Picker custom Artboard
     // -- now a dropdown list
     // enable checkbox functionality
-    dlgMain.cbArtboardShow = dlgMain.grpTopLeft.add("checkbox", undefined, strShowUseArtboard);
+    dlgMain.cbArtboardShow = dlgMain.pnlOptions.add("checkbox", undefined, strShowUseArtboard);
     dlgMain.cbArtboardShow.value = exportInfo.artboardShow;
     dlgMain.cbArtboardShow.enabled = exportInfo.artboardsEnab;
 
-    dlgMain.pnlUseArtboard = dlgMain.grpTopLeft.add("group");
+    dlgMain.pnlUseArtboard = dlgMain.pnlOptions.add("group");
     dlgMain.pnlUseArtboard.alignment = "left";
 
     // dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.grpTopLeft.add("panel", undefined, strLabelUseArtboard);
-    dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.grpTopLeft.add("group");
+    dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.pnlOptions.add("group");
     // dlgMain.pnlUseArtboard.pnlABoptions.spacing = 1;
     // dlgMain.pnlUseArtboard.pnlABoptions.margins = 1;
     dlgMain.pnlUseArtboard.pnlABoptions.alignment = "left";
@@ -620,7 +666,7 @@ function settingDialog(exportInfo) {
 
     // -- the sixth line is the panel
     dlgMain.pnlFileType = dlgMain.grpTopLeft.add("panel", undefined, strLabelFileType);
-    // dlgMain.pnlFileType.alignment = "fill";
+    dlgMain.pnlFileType.alignment = "fill";
     dlgMain.pnlFileType.alignChildren = ["top", "left"];
 
     // -- now a dropdown list
@@ -1009,6 +1055,7 @@ function settingDialog(exportInfo) {
     exportInfo.destination = dlgMain.etDestination.text;
     exportInfo.fileNamePrefix = dlgMain.etFileNamePrefix.text;
     exportInfo.prefixIndex = dlgMain.cbFileNamePrefixIndex.value;
+    exportInfo.fileNameSuffix = dlgMain.etFileNameSuffix.text;
     exportInfo.selectionOnly = dlgMain.cbSelection.value;
     exportInfo.addLyrCompName = dlgMain.cbLyrCompName.value;
     exportInfo.addCompComment = dlgMain.cbComment.value;
@@ -1176,6 +1223,7 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         //Currently uses stored data
         exportInfo.destination = new String("");
         exportInfo.fileNamePrefix = new String("untitled_");
+        exportInfo.fileNameSuffix = new String("untitled_");
         exportInfo.prefixIndex = false;
         exportInfo.alertComplete = false;
         exportInfo.openLoc = false;
@@ -1229,9 +1277,11 @@ function initFileNameDestination(exportInfo) {
         var tmp = app.activeDocument.fullName.name
         var pieces = tmp.split(".")
         exportInfo.fileNamePrefix = decodeURI(pieces.length == 1 ? tmp : pieces.slice(0, pieces.length - 1).join(".")) // filename body part
+        // exportInfo.fileNameSuffix = "" // filename suffix 
     } catch (someError) {
         exportInfo.destination = new String("")
         exportInfo.fileNamePrefix = app.activeDocument.name // filename body part
+        // exportInfo.fileNameSuffix = "" // filename suffix 
     }
 }
 
@@ -2663,6 +2713,12 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         if (compRef.comment.length > 20) compRef.comment = compRef.comment.substring(0, 20);
         fileNameBody += "-" + compRef.comment;
     }
+
+    // Adding suffix to filenamebody
+    if (exportInfo.fileNameSuffix) {
+        fileNameBody += "-"+exportInfo.fileNameSuffix;
+    }
+
     if (fileNameBody.length > 120) fileNameBody = fileNameBody.substring(0, 120);
     fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, ""); // "/\:*?"<>|\r\n" -> "-"
 
