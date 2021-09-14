@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.2
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.4
 */
 
 /*
@@ -53,6 +53,12 @@
 
 
 ////////////////////////////////////////////////////////////
+//
+//  v1.2.4 - 14092021
+//  Added
+//  - Checkbox to open destination when done. 
+//  - Checkbox to add/leave out layer comp name
+
 //
 //  v1.2.3 - 10092021
 //  Fix
@@ -148,6 +154,7 @@ var strLabelFileNamePrefix = localize("$$$/JavaScripts/LayerCompsToABFiles/FileN
 var strCheckboxSelectionOnly = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedOnly=&Selected Layer Comps Only");
 var strcbSelectionHelp = localize("$$$/JavaScripts/LayerCompsToABFiles/SelectedHelp=Uses selected Layer Lomp only");
 var strddUseComp = localize("$$$/JavaScripts/LayerCompsToABFiles/DDuseComp=Select Layer Comp from document");
+var strCheckboxAddLyrCompName = localize("$$$/JavaScripts/LayerCompsToABFiles/AddLyrCompName=&Include Layer Comp Name");
 var strCheckboxAddCompComment = localize("$$$/JavaScripts/LayerCompsToABFiles/AddCompComment=&Include Layer Comp Comment");
 var strLabelFileType = localize("$$$/JavaScripts/LayerCompsToABFiles/FileType=File Type:");
 var strCheckboxIncludeICCProfile = localize("$$$/JavaScripts/LayerCompsToABFiles/IncludeICC=&Include ICC Profile");
@@ -201,6 +208,7 @@ var strddUseArtBoard = localize("$$$/locale_specific/JavaScripts/LayerCompsToABF
 var strLabelUseArtboard = localize("$$$/JavaScripts/LayerCompsToABFiles/UseArtboard=Choose Artboard");
 var strArtboardPanelOptions = localize("$$$/JavaScripts/ArtboardsToFiles/Options=Options:")
 var strAlertComplete = localize("$$$/JavaScripts/ArtboardsToFiles/AlertComplete=Alert on completion")
+var strOpenLocation = localize("$$$/JavaScripts/ArtboardsToFiles/OpenLocation=Open destination")
 
 // the drop down list indexes for file type
 var bmpIndex = 0;
@@ -404,6 +412,22 @@ function main() {
 
             if (DialogModes.ALL == app.playbackDisplayDialogs) {
                 // alert("Script Time: " + totalTime.getElapsed())
+                if (exportInfo.openLoc){
+                // open(exportInfo.destination)
+                    var fold = Folder(exportInfo.destination);
+                    fold.execute()
+                    // alert(fold)
+                    // alert(typeof fold)
+                    // Folder.encode(exportInfo.destination)
+                    // Folder.open();
+                    // folder.execute(exportInfo.destination)
+                    // Folder(exportInfo.destination)
+                    // var folder = Folder(Folder.desktop.toString()); // your folder here
+                    // var cmd = ($.os.indexOf("Win") != -1) ? "explorer " + Folder.decode(folder.fsName) : "open \"" + Folder.decode(folder.fsName) + "\"";
+                    // #target photoshop
+                    // var cmd = 'file://'+exportInfo.destination+'\'';
+                    // system.callSystem(cmd);
+                }
                 if (exportInfo.alertComplete){
                     alert(strTitle + strAlertWasSuccessful + "\n" + exportInfo.destination);
                 }
@@ -535,6 +559,9 @@ function settingDialog(exportInfo) {
             dlgMain.cbSelection.value = false;
         }
     }
+
+    dlgMain.cbLyrCompName = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddLyrCompName);
+    dlgMain.cbLyrCompName.value = exportInfo.addLyrCompName;
 
     dlgMain.cbComment = dlgMain.grpTopLeft.add("checkbox", undefined, strCheckboxAddCompComment);
     dlgMain.cbComment.value = exportInfo.addCompComment;
@@ -933,9 +960,19 @@ function settingDialog(exportInfo) {
     dlgMain.pnlHelp.alignment = "fill";
     // dlgMain.pnlHelp.alignment = "fill";
 
+
+    dlgMain.grpAlertBottons = dlgMain.add("group");
+    dlgMain.grpAlertBottons.orientation = "row";
+    dlgMain.grpAlertBottons.alignChildren = "left";
+    dlgMain.grpAlertBottons.alignment = "fill";
+
     // Alert on completion
-    dlgMain.cbAlertComplete = dlgMain.pnlHelp.add("checkbox", undefined, strAlertComplete);
+    dlgMain.cbAlertComplete = dlgMain.grpAlertBottons.add("checkbox", undefined, strAlertComplete);
     dlgMain.cbAlertComplete.value = exportInfo.alertComplete;
+    
+    // Open locations on completion
+    dlgMain.cbOpenLocation = dlgMain.grpAlertBottons.add("checkbox", undefined, strOpenLocation);
+    dlgMain.cbOpenLocation.value = exportInfo.openLoc;
     
     dlgMain.etHelp = dlgMain.pnlHelp.add("statictext", undefined, strHelpText, {
         multiline: true
@@ -973,12 +1010,14 @@ function settingDialog(exportInfo) {
     exportInfo.fileNamePrefix = dlgMain.etFileNamePrefix.text;
     exportInfo.prefixIndex = dlgMain.cbFileNamePrefixIndex.value;
     exportInfo.selectionOnly = dlgMain.cbSelection.value;
+    exportInfo.addLyrCompName = dlgMain.cbLyrCompName.value;
     exportInfo.addCompComment = dlgMain.cbComment.value;
 
     exportInfo.artboardsEnab = false; // always use true at start
     exportInfo.inclArtboardName = dlgMain.cbIncludeArtboardName.value;
     exportInfo.artboardShow = dlgMain.cbArtboardShow.value;
     exportInfo.alertComplete = dlgMain.cbAlertComplete.value;
+    exportInfo.openLoc = dlgMain.cbOpenLocation.value;
     // if (exportInfo.artboardShow) {
     try {
         exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
@@ -1139,8 +1178,10 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         exportInfo.fileNamePrefix = new String("untitled_");
         exportInfo.prefixIndex = false;
         exportInfo.alertComplete = false;
+        exportInfo.openLoc = false;
 
         exportInfo.useLayerComp = 0;
+        exportInfo.addLyrCompName = true;
         exportInfo.addCompComment = false;
         exportInfo.singleArtboard = 0;
         exportInfo.fileType = psdIndex;
@@ -2606,15 +2647,19 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         fileNameBody += compRef.name;
     } else // not using prefix, but we"ll still make sure each file name is unique
     {
-        if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
+        if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix) && exportInfo.addLyrCompName) {
             fileNameBody += "-";
         }
-        fileNameBody += compRef.name;
-        var nameEntry = nameCountObj[compRef.name];
-        if (nameEntry.total > 1)
-            fileNameBody += "-" + nameEntry.nameIndex++;
+        if(exportInfo.addLyrCompName){
+            fileNameBody += compRef.name;
+            var nameEntry = nameCountObj[compRef.name];
+            if (nameEntry.total > 1)
+                fileNameBody += "-" + nameEntry.nameIndex++;
+        }
     }
+    // alert((null != compRef.comment) && exportInfo.addCompComment)
     if ((null != compRef.comment) && exportInfo.addCompComment) {
+        alert(exportInfo.addCompComment)
         if (compRef.comment.length > 20) compRef.comment = compRef.comment.substring(0, 20);
         fileNameBody += "-" + compRef.comment;
     }
