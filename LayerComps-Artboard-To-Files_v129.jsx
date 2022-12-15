@@ -18,10 +18,10 @@
 <name>$$$/JavaScripts/LayerCompsArtboardsToFiles/Menu=Layer Comps &amp; Artboards to Files...</name>
 	<category>scriptexport</category>
 	<menu>export</menu>
-	
-	<enableinfo>PSHOP_DocHasLayerComps</enableinfo>
-<eventid>cf34b502-2013-4d07-8431-1dfd634ee0cd</eventid>
-<terminology><![CDATA[<< /Version 1 
+	<enableinfo>PSHOP_DocHasLayerComps&amp;&amp;PSHOP_DocHasArtboards</enableinfo>
+    <eventid>cf34b502-2013-4d07-8431-1dfd634ee0cd</eventid>
+    <about>December 15th 2022 - Rombout Versluijs \r https://github.com/schroef/photoshop-scripts</about>
+    <terminology><![CDATA[<< /Version 1 
 						 /Events << 
 						  /cf34b502-2013-4d07-8431-1dfd634ee0cd [($$$/JavaScripts/LayerCompsToABFiles/Action=Layer Comps &amp; Artboards to Files) /noDirectParam <<
 						  >>] 
@@ -55,24 +55,30 @@
 ////////////////////////////////////////////////////////////
 //
 //
-//  v1.2.9 - 14122022
+//  v1.2.9 - 15122022
 //  Fixed
 //  - TypeError: undefined is not an object > Warning dialog when no artboards are available. enableinfo in script header can only do one check, we check for layercomps, so manual alert is needed for artboards
 //  - check if single artboard is select from dropdown, warning dialog
+//
+//  Changed
+//  - Added extra check menu for File > Export, it will now be enabled only their are artboards and layer comps available. This makes the manual checks absolute
 
+//
 //  v1.2.8 - 24022022
 //  Fixed
 //  - Issue cause by abIndex > TypeError: undefined is not an object
 //  ^ i used twice artbrdIndex -= 1 which caused index to be -1
+//
 
+//
 //  v1.2.7 - 14092021
-//  Chnaged
+//  Changed
 //  - Temp turn off "NO artoard selection"
 //
 
 //
 //  v1.2.6 - 14092021
-//  Chnaged
+//  Changed
 //  - Panel organisation
 //
 
