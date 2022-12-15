@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.5
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.9
 */
 
 /*
@@ -54,10 +54,33 @@
 
 ////////////////////////////////////////////////////////////
 //
+//
+//  v1.2.9 - 14122022
+//  Fixed
+//  - TypeError: undefined is not an object > Warning dialog when no artboards are available. enableinfo in script header can only do one check, we check for layercomps, so manual alert is needed for artboards
+//  - check if single artboard is select from dropdown, warning dialog
+
+//  v1.2.8 - 24022022
+//  Fixed
+//  - Issue cause by abIndex > TypeError: undefined is not an object
+//  ^ i used twice artbrdIndex -= 1 which caused index to be -1
+
+//  v1.2.7 - 14092021
+//  Chnaged
+//  - Temp turn off "NO artoard selection"
+//
+
+//
+//  v1.2.6 - 14092021
+//  Chnaged
+//  - Panel organisation
+//
+
+//
 //  v1.2.5 - 14092021
 //  Added
 //  - Option to add Suffix in file name
-//
+//  - Panel organisation
 
 //
 //  v1.2.4 - 14092021
@@ -279,13 +302,18 @@ function main() {
     var abAr = getABLayerInfo().reverse();
     var artbrdCount = abAr.length;
     // if (abArSelected.length === 0) {
+    if (artbrdCount == 0) {
+        alert(strAlertNoArtboardsFound)
+        // alert("No artboard{'s) available, this script needs both a layercomp and artboard.")
+        return "cancel";
+    }
     if (artbrdCount === 0) {
         var artboardAvail = false
     } else {
         var artboardAvail = true
     }
     // Check if Artboards are available
-    var abAr = getABLayerInfo().reverse();
+    // var abAr = getABLayerInfo().reverse();
     var artbrdCount = abAr.length;
 
     // Check if we can use Layercomps
@@ -375,7 +403,7 @@ function main() {
                 rememberMaximize = app.preferences.maximizeCompatibility;
                 app.preferences.maximizeCompatibility = needMaximize;
             }
-
+            // Fix for single artboard usage
             if (exportInfo.artboardShow && (exportInfo.singleArtboard == "0")) {
                 alert("No artboard selected!" + "\n" + "Select one from the dropdown menu");
                 main()// return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
@@ -497,8 +525,8 @@ function settingDialog(exportInfo) {
     dlgMain.pnlFiles.orientation = "column";
     dlgMain.pnlFiles.alignChildren = "left";
     dlgMain.pnlFiles.alignment = "fill";
-    dlgMain.pnlFiles.spacing = 15;
-    dlgMain.pnlFiles.margins = 15;
+    // dlgMain.pnlFiles.spacing = 15;
+    // dlgMain.pnlFiles.margins = 15;
 
     // -- the first line in the dialog
     dlgMain.grpFirstLine = dlgMain.pnlFiles.add("group");
@@ -544,8 +572,8 @@ function settingDialog(exportInfo) {
     // dlgMain.etFileNamePrefix.preferredSize.width = StrToIntWithDefault( stretDestination, 160 );
     dlgMain.grFileNamePrefixGr = dlgMain.pnlFiles.add("group");
     dlgMain.grFileNamePrefixGr.orientation = "row";
-    dlgMain.grFileNamePrefixGr.spacing = 5;
-    dlgMain.grFileNamePrefixGr.margins = 0;
+    // dlgMain.grFileNamePrefixGr.spacing = 5;
+    // dlgMain.grFileNamePrefixGr.margins = 0;
     dlgMain.etFileNamePrefix = dlgMain.grFileNamePrefixGr.add("edittext", undefined, exportInfo.fileNamePrefix.toString());
     dlgMain.etFileNamePrefix.preferredSize = [350, 20];
     dlgMain.cbFileNamePrefixIndex = dlgMain.grFileNamePrefixGr.add("checkbox", undefined, "Index");
@@ -555,8 +583,8 @@ function settingDialog(exportInfo) {
     dlgMain.pnlFiles.add("statictext", undefined, strLabelFileNameSuffix);
     dlgMain.grFileNameSuffixGr = dlgMain.pnlFiles.add("group");
     dlgMain.grFileNameSuffixGr.orientation = "row";
-    dlgMain.grFileNameSuffixGr.spacing = 5;
-    dlgMain.grFileNameSuffixGr.margins = 0;
+    // dlgMain.grFileNameSuffixGr.spacing = 5;
+    // dlgMain.grFileNameSuffixGr.margins = 0;
     dlgMain.etFileNameSuffix = dlgMain.grFileNameSuffixGr.add("edittext", undefined, exportInfo.fileNameSuffix.toString());
     dlgMain.etFileNameSuffix.preferredSize = [350, 20];
 
@@ -620,30 +648,33 @@ function settingDialog(exportInfo) {
     // - Picker custom Artboard
     // -- now a dropdown list
     // enable checkbox functionality
-    dlgMain.cbArtboardShow = dlgMain.pnlOptions.add("checkbox", undefined, strShowUseArtboard);
+    dlgMain.grArtboards = dlgMain.pnlOptions.add("group");
+    dlgMain.grArtboards.orientation = "row";
+
+    dlgMain.cbArtboardShow = dlgMain.grArtboards.add("checkbox", undefined, strShowUseArtboard);
     dlgMain.cbArtboardShow.value = exportInfo.artboardShow;
     dlgMain.cbArtboardShow.enabled = exportInfo.artboardsEnab;
 
-    dlgMain.pnlUseArtboard = dlgMain.pnlOptions.add("group");
-    dlgMain.pnlUseArtboard.alignment = "left";
+    // dlgMain.pnlUseArtboard = dlgMain.pnlOptions.add("group");
+    // dlgMain.pnlUseArtboard.alignment = "left";
 
     // dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.grpTopLeft.add("panel", undefined, strLabelUseArtboard);
-    dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.pnlOptions.add("group");
+    dlgMain.pnlABoptions = dlgMain.grArtboards.add("group");
     // dlgMain.pnlUseArtboard.pnlABoptions.spacing = 1;
     // dlgMain.pnlUseArtboard.pnlABoptions.margins = 1;
-    dlgMain.pnlUseArtboard.pnlABoptions.alignment = "left";
+    dlgMain.pnlABoptions.alignment = "left";
 
 
-    dlgMain.pnlUseArtboard.pnlABoptions.add("statictext", undefined, strLabelUseArtboard);
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard = dlgMain.pnlUseArtboard.pnlABoptions.add("dropdownlist");
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.preferredSize.width = StrToIntWithDefault(strddUseArtBoard, 120);
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.alignment = "left";
+    dlgMain.pnlABoptions.add("statictext", undefined, strLabelUseArtboard);
+    dlgMain.pnlABoptions.ddUseArtboard = dlgMain.pnlABoptions.add("dropdownlist");
+    dlgMain.pnlABoptions.ddUseArtboard.preferredSize.width = StrToIntWithDefault(strddUseArtBoard, 120);
+    dlgMain.pnlABoptions.ddUseArtboard.alignment = "left";
     var UseabAr = getABLayerInfo().reverse();
     var UseartbrdCount = UseabAr.length;
     // UseartbrdCount += 1; //add 1 to compensentate None in menu
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.add("item", "None");
+    dlgMain.pnlABoptions.ddUseArtboard.add("item", "None");
     for (UseartbrdIndex = 0; UseartbrdIndex < UseartbrdCount; UseartbrdIndex++) {
-        dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.add("item", UseabAr[UseartbrdIndex].name);
+        dlgMain.pnlABoptions.ddUseArtboard.add("item", UseabAr[UseartbrdIndex].name);
     }
     // -- now the options panel that changes
     //   dlgMain.pnlUseArtboard.pnlABoptions = dlgMain.pnlUseArtboard.add("panel", undefined, strArtboardPanelOptions)
@@ -651,17 +682,17 @@ function settingDialog(exportInfo) {
 
     dlgMain.cbArtboardShow.onClick = function() {
         if (dlgMain.cbArtboardShow.value) {
-            dlgMain.pnlUseArtboard.pnlABoptions.show();
-            populateOptions(dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.selection.index);
+            dlgMain.pnlABoptions.show();
+            populateOptions(dlgMain.pnlABoptions.ddUseArtboard.selection.index);
         }
         if (!dlgMain.cbArtboardShow.value) {
-            dlgMain.pnlUseArtboard.pnlABoptions.hide();
+            dlgMain.pnlABoptions.hide();
         }
     }
     // Also hide artboard options
-    if (!dlgMain.cbArtboardShow.value) dlgMain.pnlUseArtboard.pnlABoptions.hide();
+    if (!dlgMain.cbArtboardShow.value) dlgMain.pnlABoptions.hide();
     // Set menu too default
-    dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items["0"].selected = true;
+    dlgMain.pnlABoptions.ddUseArtboard.items["0"].selected = true;
     // dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.items[chosenArtboard].selected = true;
 
     // -- the sixth line is the panel
@@ -730,8 +761,8 @@ function settingDialog(exportInfo) {
         grICCGr.alignChildren = ["left", "top"];
     // dlgMain.grICCGr.orientation = "column";
     // dlgMain.grICCGr.alignment = "left";
-        grICCGr.spacing = 10;
-        grICCGr.margins = 5;
+        // grICCGr.spacing = 10;
+        // grICCGr.margins = 5;
 
 
     var grICC = grICCGr.add("group");
@@ -1068,7 +1099,7 @@ function settingDialog(exportInfo) {
     // if (exportInfo.artboardShow) {
     try {
         exportInfo.useLayerComp = dlgMain.ddUseComp.selection.index;
-        exportInfo.singleArtboard = dlgMain.pnlUseArtboard.pnlABoptions.ddUseArtboard.selection.index;
+        exportInfo.singleArtboard = dlgMain.pnlABoptions.ddUseArtboard.selection.index;
     } catch (e) {
         // alert("No artboard selected!" + "\n" + e);
     }
@@ -2016,11 +2047,8 @@ function countCompsNames(list) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Function: selectedCompsConfigError
-
 // Usage:  if the selected comps only option is on see if we have any selected
-
 // Input: layer comps in the document, export settings
-
 // Return: true for option on and none selected
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2265,46 +2293,46 @@ function cleanArtboards() {
 
 
 // duplciate artboard script???
-    function dupliABnewDoc(){
-        // =======================================================
-        var idmodalStateChanged = stringIDToTypeID( "modalStateChanged" );
-        var desc819 = new ActionDescriptor();
-        var idLvl = charIDToTypeID( "Lvl " );
-        desc819.putInteger( idLvl, 0 );
-        var idStte = charIDToTypeID( "Stte" );
-        var idStte = charIDToTypeID( "Stte" );
-        var idexit = stringIDToTypeID( "exit" );
-        desc819.putEnumerated( idStte, idStte, idexit );
-        var idkcanDispatchWhileModal = stringIDToTypeID( "kcanDispatchWhileModal" );
-        desc819.putBoolean( idkcanDispatchWhileModal, true );
-        var idTtl = charIDToTypeID( "Ttl " );
-        desc819.putString( idTtl, """Duplicate Artboard""" );
-        executeAction( idmodalStateChanged, desc819, DialogModes.YES );
+function dupliABnewDoc(){
+    // =======================================================
+    var idmodalStateChanged = stringIDToTypeID( "modalStateChanged" );
+    var desc819 = new ActionDescriptor();
+    var idLvl = charIDToTypeID( "Lvl " );
+    desc819.putInteger( idLvl, 0 );
+    var idStte = charIDToTypeID( "Stte" );
+    var idStte = charIDToTypeID( "Stte" );
+    var idexit = stringIDToTypeID( "exit" );
+    desc819.putEnumerated( idStte, idStte, idexit );
+    var idkcanDispatchWhileModal = stringIDToTypeID( "kcanDispatchWhileModal" );
+    desc819.putBoolean( idkcanDispatchWhileModal, true );
+    var idTtl = charIDToTypeID( "Ttl " );
+    desc819.putString( idTtl, """Duplicate Artboard""" );
+    executeAction( idmodalStateChanged, desc819, DialogModes.YES );
 
-        // =======================================================
-        // var idMk = charIDToTypeID( "Mk  " );
-        // var desc820 = new ActionDescriptor();
-        // var idnull = charIDToTypeID( "null" );
-        // var ref162 = new ActionReference();
-        // var idDcmn = charIDToTypeID( "Dcmn" );
-        // ref162.putClass( idDcmn );
-        // desc820.putReference( idnull, ref162 );
-        // var idNm = charIDToTypeID( "Nm  " );
-        // desc820.putString( idNm, """AB-02""" );
-        // var idUsng = charIDToTypeID( "Usng" );
-        // var ref163 = new ActionReference();
-        // var idLyr = charIDToTypeID( "Lyr " );
-        // var idOrdn = charIDToTypeID( "Ordn" );
-        // var idTrgt = charIDToTypeID( "Trgt" );
-        // ref163.putEnumerated( idLyr, idOrdn, idTrgt );
-        // desc820.putReference( idUsng, ref163 );
-        // var idVrsn = charIDToTypeID( "Vrsn" );
-        // desc820.putInteger( idVrsn, 5 );
-        // executeAction( idMk, desc820, DialogModes.NO );
+    // =======================================================
+    // var idMk = charIDToTypeID( "Mk  " );
+    // var desc820 = new ActionDescriptor();
+    // var idnull = charIDToTypeID( "null" );
+    // var ref162 = new ActionReference();
+    // var idDcmn = charIDToTypeID( "Dcmn" );
+    // ref162.putClass( idDcmn );
+    // desc820.putReference( idnull, ref162 );
+    // var idNm = charIDToTypeID( "Nm  " );
+    // desc820.putString( idNm, """AB-02""" );
+    // var idUsng = charIDToTypeID( "Usng" );
+    // var ref163 = new ActionReference();
+    // var idLyr = charIDToTypeID( "Lyr " );
+    // var idOrdn = charIDToTypeID( "Ordn" );
+    // var idTrgt = charIDToTypeID( "Trgt" );
+    // ref163.putEnumerated( idLyr, idOrdn, idTrgt );
+    // desc820.putReference( idUsng, ref163 );
+    // var idVrsn = charIDToTypeID( "Vrsn" );
+    // desc820.putInteger( idVrsn, 5 );
+    // executeAction( idMk, desc820, DialogModes.NO );
 
-        // =======================================================
-        //var idlayersFiltered = stringIDToTypeID( "layersFiltered" );
-        //executeAction( idlayersFiltered, undefined, DialogModes.NO );
+    // =======================================================
+    //var idlayersFiltered = stringIDToTypeID( "layersFiltered" );
+    //executeAction( idlayersFiltered, undefined, DialogModes.NO );
 };
 
 
@@ -2317,14 +2345,13 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 duppedDocument.trim(TrimType.TRANSPARENT);
             }
             if (exportInfo.png24Transparency) {
-                // alert(exportInfo.png24Transparency)
-                //do nothing
+                docRef.layerComps.removeAll();
+                //skip we need transparency in file
                 break;
             } else {
                 if (!exportInfo.png24Transparency) {
                     flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
-                    // alert("DO IT PNG24")
                     break;
                 }
             }
@@ -2334,13 +2361,12 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 duppedDocument.trim(TrimType.TRANSPARENT);
             }
             if (exportInfo.png8Transparency) {
-                //do nothing
+                //skip we need transparency in file
                 break;
             } else {
                 if (!exportInfo.png8Transparency) {
                     flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
                     // duppedDocument.flatten();
-                    // alert("DO IT PNG8")
                     break;
                 }
             }
@@ -2351,10 +2377,7 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
             if ((exportInfo.tiffTransparency) || (exportInfo.tiffLayers)) {
                 if (exportInfo.tiffLayers) {
                     docRef.layerComps.removeAll();
-                    // removeAllInvisible(duppedDocument);// slow
-                    // hideOthers(abAr, artbrdIndex);// faster
-                    // deleteHidden();//faster
-                    //do nothing
+                    //skip we need transparency in file
                     break; 
                 }
             } else {
@@ -2371,10 +2394,7 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
             }
             if (exportInfo.psdLayers) {
                 docRef.layerComps.removeAll();
-                // removeAllInvisible(duppedDocument);// slow
-                    // hideOthers(abAr, artbrdIndex);// faster
-                    // deleteHidden();//faster
-                //do nothing
+                //skip we need transparency in file
                 break;
             } else {
                 if (!exportInfo.psdLayers) {
@@ -2408,28 +2428,24 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
                 duppedDocument.trim(TrimType.TRANSPARENT);
             }
             docRef.layerComps.removeAll();
-            // alert("DO IT DEFAULT")
-            // alert(abAr)
-            // alert(artbrdIndex)
-            // alert(abAr[artbrdIndex].name)
-            // alert("default swtich")
-            // Select active AB so we can crop after flattening
-            // alert("flatten")
             flattenDocSelAB(duppedDocument, abAr, artbrdIndex)
+            
             // activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
             // selectAll();
-            duppedDocument.flatten();
+            // duppedDocument.flatten();
     }
 }
 
 function flattenDocSelAB(duppedDocument, abAr, artbrdIndex){
-    activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
-    selectAll();
+    // activeDocument.layers.getByName(abAr[artbrdIndex].name)
+    // activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
+    var AMid = abAr[artbrdIndex].AMid;
+    selectLayerFromAMid(AMid, 'replaceSelection')
+    selectionFromABBounds(duppedDocument, abAr, artbrdIndex)
     duppedDocument.flatten();
-    // alert("doc flattened")
 }
 
-function cropFromSelection () {
+function cropFromSelection() {
   // =======================================================
   var idcrop = stringIDToTypeID('crop')
   var desc79 = new ActionDescriptor()
@@ -2599,6 +2615,41 @@ function selectAll(){
     executeAction( cTID('setd'), desc46, DialogModes.NO );
 
 }
+
+
+/// ////////////////////////////////////////////////////////////////////////////
+// Function: selectLayerFromAMid
+// Usage: Select a layer by its AMid value.
+// Input: AM id value and type of selection, either "addToSelectionContinuous" or "addToSelection" or "removeFromSelection"
+// Return: a selected layer.
+/// ////////////////////////////////////////////////////////////////////////////
+
+function selectLayerFromAMid (AMid, selType) {
+    var desc01 = new ActionDescriptor()
+    var ref01 = new ActionReference()
+    ref01.putIdentifier(charIDToTypeID('Lyr '), parseInt(AMid))
+    desc01.putReference(charIDToTypeID('null'), ref01)
+    desc01.putEnumerated(stringIDToTypeID('selectionModifier'), stringIDToTypeID('selectionModifierType'), stringIDToTypeID(selType))
+    desc01.putBoolean(charIDToTypeID('MkVs'), false)
+    executeAction(charIDToTypeID('slct'), desc01, DialogModes.NO)
+    // alert("selectLayerFromAMid")
+}
+/// ////////////////////////////////////////////////////////////////////////////
+// Function: selectionFromABBounds
+// Usage: Select a layer by its AMid value.
+// Input: activeDocument, artboard, artboardIndex
+// Return: a selected layer.
+/// ////////////////////////////////////////////////////////////////////////////
+function selectionFromABBounds(duppedDocument, abAr, u) {
+    // create selection mask for group from AB bounds
+    var lt = abAr[u].left
+    var tp = abAr[u].top
+    var rt = abAr[u].right
+    var bt = abAr[u].bottom
+    duppedDocument.selection.select([[lt, tp], [rt, tp], [rt, bt], [lt, bt]], SelectionType.REPLACE, 0, false)
+    // alert("selectionFromABBounds")
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Function: exportArtboards - Single or All
 // Usage: Check what settings user wants
@@ -2607,37 +2658,30 @@ function selectAll(){
 ///////////////////////////////////////////////////////////////////////////////
 
 function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nameCountObj) {
+    // alert(artbrdIndex)
     // create duplicate doc and flatten to save memory. and processing time.  I already have all the data i need so don"t need the layers anymore. 
     var duppedDocument = app.activeDocument.duplicate();
     // alert(abAr[artbrdIndex].name)
-
+    
+    // 20220224 Turned off this check > caused 
     // Fix single AB export
     if (exportInfo.artboardShow) {
         artbrdIndex -= 1; // Minus 1 to compensentate None in menu
     }
     // alert(artbrdIndex)
     // alert(exportInfo.artboardShow)
+    // alert(abAr[artbrdIndex].name)
+    
     switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex)
+    
     // switchFileType(exportInfo, duppedDocument)
     // alert("switched filetype check")
     app.activeDocument = duppedDocument;
 
     var curRulOrigin = getActiveDocRulerOrigin();
 
-    // Dropdown menu index correction
-    if (exportInfo.artboardShow) {
-        artbrdIndex -= 1; // Minus 1 to compensentate None in menu
-    }
-    // alert(artbrdIndex)
-    // alert("start crop")
-    //active index should be set
-    // alert("test dupli")
-    //dupliABnewDoc()
-    // get crop region
     if (abAr) {
         if((exportInfo.psdLayers && exportInfo.fileType == psdIndex) || (exportInfo.pdfLayers && exportInfo.fileType == pdfIndex) || (exportInfo.tiffLayers && exportInfo.fileType == tiffIndex) || (exportInfo.tiffTransparency && exportInfo.fileType == tiffIndex)||(exportInfo.png24Transparency && exportInfo.fileType == png24Index)||(exportInfo.png8Transparency&& exportInfo.fileType == png8Index)){
-            // alert("hide files")
-            // alert(exportInfo.fileType)
             try{
                 hideOthers(abAr, artbrdIndex); // hides others > Artvoards in this case
                 deleteHidden(); // Then we delete them > now crop works
@@ -2646,6 +2690,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
                 alert(e)
             }
         }
+        
         // Crop for layered files
         // } else {
         //     var lt = -curRulOrigin[0] + abAr[artbrdIndex].left;
@@ -2665,23 +2710,17 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         cropFromSelection(); // Crops from excisting selection
         // cropFromMask(); // crops from everythinng in layerset
         // cleanArtboards();
+        // alert("Cropped from selection")
         
-    }
-    // alert("end crop crop")
-    // alert(abAr[artbrdIndex].visible)
-    
-    // Reset ABindex after we corrected so name getts exported correct
-    if (exportInfo.artboardShow) {
-        artbrdIndex += 1; // Minus 1 to compensentate None in menu
     }
 
     if (duppedDocument.bitsPerChannel == duppedDocument.THIRTYTWO) duppedDocument.bitsPerChannel = duppedDocument.SIXTEEN;
-
     // Naming method from layercomps to Files + artboardnames
     var fileNameBody = exportInfo.fileNamePrefix;
     // fileNameBody += "_" + zeroSuppress(compsIndex, 4);
     // fileNameBody += "_" + compRef.name;
     fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, "-"); // "/\:*?"<>|\r\n" -> "-"
+    // alert(abAr[artbrdIndex].name)
     if (exportInfo.inclArtboardName) {
         if (exportInfo.fileNamePrefix) {
             fileNameBody += "-";
@@ -2709,13 +2748,12 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     }
     // alert((null != compRef.comment) && exportInfo.addCompComment)
     if ((null != compRef.comment) && exportInfo.addCompComment) {
-        alert(exportInfo.addCompComment)
         if (compRef.comment.length > 20) compRef.comment = compRef.comment.substring(0, 20);
         fileNameBody += "-" + compRef.comment;
     }
 
     // Adding suffix to filenamebody
-    if (exportInfo.fileNameSuffix) {
+    if (exportInfo.fileNameSuffix != "") {
         fileNameBody += "-"+exportInfo.fileNameSuffix;
     }
 
