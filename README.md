@@ -20,7 +20,7 @@ This is an additional version of Photoshop "layercomps to files". This version w
 
 ## Replace SmartObject Image
 
-This is an altered version of the script by ![Laryn](https://gist.github.com/laryn/0a1f6bf0dab5b713395a835f9bfa805c)
+This is an altered version of the script by [Laryn](https://gist.github.com/laryn/0a1f6bf0dab5b713395a835f9bfa805c)
 
 This version scales the new linked images to size of the mask in the artlayer group it is placed. Make sure your PSD document is structured like the example below. Make sure the names match and the red layer "REPLACE DESIGN" is also named accordingly.
 
