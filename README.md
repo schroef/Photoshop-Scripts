@@ -18,6 +18,9 @@ This is an additional version of Photoshop "layercomps to files". This version w
 
 ####
 
+<br>
+<br>
+
 ## Replace SmartObject Image
 
 This is an altered version of the script by <b>[Laryn : Replace_SmartObject_Images.js](https://gist.github.com/laryn/0a1f6bf0dab5b713395a835f9bfa805c)</b>
