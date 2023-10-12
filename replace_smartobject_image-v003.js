@@ -8,8 +8,12 @@
 // Adde code by MaginSun 2022-10-08
 // Update code Rombout 2022-10-08
 
-// Replace_SmartObject_Image v.0.0.2
-// 2023-08-22
+// 2023-10-12 - v.0.0.3
+// Change
+// - Comment code
+
+// Replace_SmartObject_Image v.0.0.3
+// 2023-10-12
 
 #target photoshop
 if (app.documents.length > 0) {
@@ -52,8 +56,9 @@ if (app.documents.length > 0) {
 			var theBounds = theLayer.bounds;
 			var theHor = (theDim[2]-theDim[0])/(theBounds[2]-theBounds[0])*100;
 			var theVer = (theDim[3]-theDim[1])/(theBounds[3]-theBounds[1])*100;
-			$.writeln(theDim);
-			$.writeln((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) +"\n"+ (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])+"\n");
+			// Write ExtendScript Toolkit
+			// $.writeln(theDim);
+			// $.writeln((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) +"\n"+ (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])+"\n");
 		if ((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) < (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])) 
 	{
 		var theFactor = theHor
