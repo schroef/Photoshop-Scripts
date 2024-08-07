@@ -8,6 +8,10 @@
 // Adde code by MaginSun 2022-10-08
 // Update code Rombout 2022-10-08
 
+// 2023-12-02 - v.0.0.4
+// Added
+// - being able to place PNG, GIF, WEBP files
+
 // 2023-10-12 - v.0.0.3
 // Change
 // - Comment code
@@ -32,7 +36,7 @@ if (app.documents.length > 0) {
 	} else {
 		// select files;
 		if ($.os.search(/windows/i) != -1) {
-			var theFiles = File.openDialog ("please select files", "*.psd;*.jpg;*.tif;*.eps", true)
+			var theFiles = File.openDialog ("please select files", "*.psd;*.jpg;*.png;*.gif;*.webp;*.tif;*.eps", true)
 		} else { 
 			var theFiles = File.openDialog ("please select files", getFiles, true)
 		};
@@ -59,12 +63,11 @@ if (app.documents.length > 0) {
 			// Write ExtendScript Toolkit
 			// $.writeln(theDim);
 			// $.writeln((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) +"\n"+ (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])+"\n");
-		if ((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) < (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])) 
-	{
-		var theFactor = theHor
-	} else {
-	var theFactor = theVer
-	};
+		if ((theDim[2]-theDim[0])/(theDim[3]-theDim[1]) < (theBounds[2]-theBounds[0])/(theBounds[3]-theBounds[1])) {
+			var theFactor = theHor
+		} else {
+			var theFactor = theVer
+		};
 		theLayer.resize(theFactor, theFactor, AnchorPosition.MIDDLECENTER);
 		//save jpg;
 		var theNewName = theFiles[m].name.match(/(.*)\.[^\.]+$/)[1];
@@ -102,13 +105,17 @@ function replaceContents(newFile, theSO) {
 ////// also adapted from xbytors stdlib //////
 
 function loadLayerMaskSelection (doc, layer, invert) {
-  var desc = new ActionDescriptor();
-  var cref = new ActionReference();
-  cref.putProperty(charIDToTypeID("Chnl"), charIDToTypeID("fsel"));
-  desc.putReference(charIDToTypeID("null"), cref);
-  var tref = new ActionReference(); // Channel Kind ("Trsp" or "Msk ")
-  tref.putEnumerated(charIDToTypeID("Chnl"), charIDToTypeID("Chnl"), charIDToTypeID("Msk "));
-  desc.putReference(charIDToTypeID("T   "), tref);
-  if (invert == true) {desc.putBoolean(charIDToTypeID("Invr"), true)};
-  executeAction(charIDToTypeID("setd"), desc, DialogModes.NO);
+    try {
+        var desc = new ActionDescriptor();
+        var cref = new ActionReference();
+        cref.putProperty(charIDToTypeID("Chnl"), charIDToTypeID("fsel"));
+        desc.putReference(charIDToTypeID("null"), cref);
+        var tref = new ActionReference(); // Channel Kind ("Trsp" or "Msk ")
+        tref.putEnumerated(charIDToTypeID("Chnl"), charIDToTypeID("Chnl"), charIDToTypeID("Msk "));
+        desc.putReference(charIDToTypeID("T   "), tref);
+        if (invert == true) {desc.putBoolean(charIDToTypeID("Invr"), true)};
+        executeAction(charIDToTypeID("setd"), desc, DialogModes.NO);
+    } catch(e){
+        alert("Layer group doesnt contain Mask, this is need to make the new linked smartobject fit to the mask proportions")
+    }
   };

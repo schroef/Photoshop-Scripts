@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.2.9
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.3.1
 */
 
 /*
@@ -38,129 +38,120 @@
 
 
 ////////////////////////////////////////////////////////////
-//
-//  TODO
-//  • Webexport > resize to 72
-//  • Foit action? Handy for big or higher res docs
-//  • Check convertsRGB, it does this on layered
-//  • Speed improvement layer cleaner > went from 122s to 20s for 4 artboards with 25 layers - 06012020
-//  X Fix PSD export keep layers doesnt clean artboards. - 06012021
-//  X Fix PSD export keep layers doesnt clean artboards. - 17122020 > not properly fixed
-//  X Add templates gitgub issues - 17122020
-//
+/*
+    TODO
+    • Webexport > resize to 72
+    • Foit action? Handy for big or higher res docs
+    • Check convertsRGB, it does this on layered
+    • Speed improvement layer cleaner > went from 122s to 20s for 4 artboards with 25 layers - 06012020
+    X Fix PSD export keep layers doesnt clean artboards. - 06012021
+    X Fix PSD export keep layers doesnt clean artboards. - 17122020 > not properly fixed
+    X Add templates gitgub issues - 17122020
+    X Add WEBP from other script - 20240124
+    V Add option to use without artboards - 20240124
+    X Rebuild Dialog with scriptui - 20240124
+*/
 ////////////////////////////////////////////////////////////
 
 
 
 ////////////////////////////////////////////////////////////
-//
-//
-//  v1.2.9 - 15122022
-//  Fixed
-//  - TypeError: undefined is not an object > Warning dialog when no artboards are available. enableinfo in script header can only do one check, we check for layercomps, so manual alert is needed for artboards
-//  - check if single artboard is select from dropdown, warning dialog
-//
-//  Changed
-//  - Added extra check menu for File > Export, it will now be enabled only their are artboards and layer comps available. This makes the manual checks absolute
+/*
 
-//
-//  v1.2.8 - 24022022
-//  Fixed
-//  - Issue cause by abIndex > TypeError: undefined is not an object
-//  ^ i used twice artbrdIndex -= 1 which caused index to be -1
-//
+  v1.3.1 - 20240807
+  Fixed
+  - Issue when comment where added. wrong method of adding to fileNameBody string
 
-//
-//  v1.2.7 - 14092021
-//  Changed
-//  - Temp turn off "NO artoard selection"
-//
+  v1.3.0 - 20240124
+  Added
+  - Option to use script without artboards
 
-//
-//  v1.2.6 - 14092021
-//  Changed
-//  - Panel organisation
-//
+  v1.2.9 - 15122022
+  Fixed
+  - TypeError: undefined is not an object > Warning dialog when no artboards are available. enableinfo in script header can only do one check, we check for layercomps, so manual alert is needed for artboards
+  - check if single artboard is select from dropdown, warning dialog
 
-//
-//  v1.2.5 - 14092021
-//  Added
-//  - Option to add Suffix in file name
-//  - Panel organisation
+  Changed
+  - Added extra check menu for File > Export, it will now be enabled only their are artboards and layer comps available. This makes the manual checks absolute
 
-//
-//  v1.2.4 - 14092021
-//  Added
-//  - Checkbox to open destination when done. 
-//  - Checkbox to add/leave out layer comp name
-//
+  v1.2.8 - 24022022
+  Fixed
+  - Issue cause by abIndex > TypeError: undefined is not an object
+  ^ i used twice artbrdIndex -= 1 which caused index to be -1
 
-//
-//  v1.2.3 - 10092021
-//  Fix
-//  - Hotfix for single AB export getting wrong indexnumber due to Dropdown index being different from actual AB index
-//  
-//  Added
-//  - Checkbox to give alert when done. 
-//
+  v1.2.7 - 14092021
+  Changed
+  - Temp turn off "NO artoard selection"
+
+  v1.2.6 - 14092021
+  Changed
+  - Panel organisation
+
+  v1.2.5 - 14092021
+  Added
+  - Option to add Suffix in file name
+  - Panel organisation
+
+  v1.2.4 - 14092021
+  Added
+  - Checkbox to open destination when done. 
+  - Checkbox to add/leave out layer comp name
+
+  v1.2.3 - 10092021
+  Fix
+  - Hotfix for single AB export getting wrong indexnumber due to Dropdown index being different from actual AB index
+  
+  Added
+  - Checkbox to give alert when done. 
+
+  v1.2.2 - 06092021
+  Fix
+  - Issue wuth flattened files single artboards and layercomps export other then JPG
+
+  v1.2.1 - 12072021
+  Fix
+  - Issue 002 > results in error checking artboard names before dialog shows
+
+  v1.2.0 - 06072021
+  Fix
+  - Try Fix artboard is ps 22.4.0
+  - Missing export flattened method > accidently commented it out while testing layered methods
 
 
-//
-//  v1.2.2 - 06092021
-//  Fix
-//  - Issue wuth flattened files single artboards and layercomps export other then JPG
-//
+  v1.1.9 - 07012021
+  Added
+  - switch to fullscreen mode, ui doesnt need to update > seems faster
 
-//
-//  v1.2.1 - 12072021
-//  Fix
-//  - Issue 002 > results in error checking artboard names before dialog shows
-//
+  v1.1.8 - 07012021
+  Fixed
+  - Transparent Export, Layered PSD and artboards > Wasnt working on OSX
 
-//
-//  v1.2.0 - 06072021
-//  Fix
-//  - Try Fix artboard is ps 22.4.0
-//  - Missing export flattened method > accidently commented it out while testing layered methods
-//
+  Added
+  - PDF layers
 
-//
-//  v1.1.9 - 07012021
-//  Added
-//  - switch to fullscreen mode, ui doesnt need to update > seems faster
-//
+  v1.1.8 - 06012021
+  Fixed
+  - Transparent Export, Layered PSD and artboards > Now single artboards are exported properly
 
-//  v1.1.8 - 07012021
-//  Fixed
-//  - Transparent Export, Layered PSD and artboards > Wasnt working on OSX
-//
-//  Added
-//  - PDF layers
-//
+  Changed
+  - Better cleaning of docs for layers and transparent files
+  - When no artboard is selected dialog shows again > prior it would close and script need to be selected again
+  - Speed Improvement > The more layers you had the slower it was > Now its blazing!!!
+  25 layers on 4 artboards
+  20.652 New time
+  122.169 Old time
 
-//  v1.1.8 - 06012021
-//  Fixed
-//  - Transparent Export, Layered PSD and artboards > Now single artboards are exported properly
-//
-//  Changed
-//  - Better cleaning of docs for layers and transparent files
-//  - When no artboard is selected dialog shows again > prior it would close and script need to be selected again
-//  - Speed Improvement > The more layers you had the slower it was > Now its blazing!!!
-//  25 layers on 4 artboards
-//  20.652 New time
-//  122.169 Old time
+  v1.1.7 - 17122020
+  Fixed
+  - Exporting artboards with transparency cleans artboards properly > still had issues single artboards
 
-//  v1.1.7 - 17122020
-//  Fixed
-//  - Exporting artboards with transparency cleans artboards properly > still had issues single artboards
+  v1.1.6 - 17122020
+  Fixed
+  - #146 1302 No such elelement > app.activeDocument.colorProfileName
 
-//  v1.1.6 - 17122020
-//  Fixed
-//  - #146 1302 No such elelement > app.activeDocument.colorProfileName
-
-//  VERSION
-//  v1.1.5 - August 3 2020
-//
+  VERSION
+  v1.1.5 - August 3 2020
+*/
 ////////////////////////////////////////////////////////////
 
 
@@ -180,7 +171,7 @@ $.localize = true;
 //=================================================================
 
 // UI strings to be localized
-var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export Layer Comps & Artboards");
+var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export Layer Comps & Artboards v1.3.1");
 var strButtonRun = localize("$$$/JavaScripts/LayerCompsToABFiles/Run=Run");
 var strButtonCancel = localize("$$$/JavaScripts/LayerCompsToABFiles/Cancel=Cancel");
 var strHelpText = localize("$$$/JavaScripts/LayerCompsToABFiles/Help=Please specify the format and location for saving each layer comp as a file.");
@@ -307,12 +298,12 @@ function main() {
     // Check if Artboards are available
     var abAr = getABLayerInfo().reverse();
     var artbrdCount = abAr.length;
-    // if (abArSelected.length === 0) {
-    if (artbrdCount == 0) {
-        alert(strAlertNoArtboardsFound)
-        // alert("No artboard{'s) available, this script needs both a layercomp and artboard.")
-        return "cancel";
-    }
+    
+    // if (artbrdCount == 0) {
+    //     alert(strAlertNoArtboardsFound)
+    //     // alert("No artboard{'s) available, this script needs both a layercomp and artboard.")
+    //     return "cancel";
+    // }
     if (artbrdCount === 0) {
         var artboardAvail = false
     } else {
@@ -2253,7 +2244,14 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
     //         alert(strAlertNoArtboardsFound);
     //     }
     // return "cancel"; // quit, returning "cancel" (dont localize) makes the actions palette not record our script
-    // } else {    
+    // } else {
+
+    // DONT USE ARTBOARDS
+    if (!exportInfo.artboardShow && abAr=="") {
+        var abAr = false
+        exportArtboards(compsIndex, singAB, exportInfo, abAr, compRef, nameCountObj);
+    }
+    // DO ARTBOARDS
     if (exportInfo.artboardShow) {
         // alert(exportInfo.singleArtboard)
         var singAB = exportInfo.singleArtboard;
@@ -2271,6 +2269,7 @@ function exportComps(compsIndex, exportInfo, compRef, nameCountObj) {
         }
 
     }
+    
     // }
 }
 
@@ -2445,10 +2444,13 @@ function switchFileType(exportInfo, duppedDocument,abAr, artbrdIndex) {
 function flattenDocSelAB(duppedDocument, abAr, artbrdIndex){
     // activeDocument.layers.getByName(abAr[artbrdIndex].name)
     // activeDocument.activeLayer = activeDocument.layers.getByName(abAr[artbrdIndex].name);
-    var AMid = abAr[artbrdIndex].AMid;
-    selectLayerFromAMid(AMid, 'replaceSelection')
-    selectionFromABBounds(duppedDocument, abAr, artbrdIndex)
-    duppedDocument.flatten();
+    if(abAr){
+        var AMid = abAr[artbrdIndex].AMid;
+        selectLayerFromAMid(AMid, 'replaceSelection')
+        selectionFromABBounds(duppedDocument, abAr, artbrdIndex)
+        duppedDocument.flatten();
+
+    }
 }
 
 function cropFromSelection() {
@@ -2707,7 +2709,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         //     // alert(cropRegion)
             
         //     duppedDocument.crop(cropRegion);
-        // }
+        // } 
         // if((exportInfo.psdLayers && exportInfo.fileType == psdIndex) || (exportInfo.tiffLayers && exportInfo.fileType == tiffIndex)||(exportInfo.png24Transparency && exportInfo.fileType == png24Index)||(exportInfo.png8Transparency&& exportInfo.fileType == png8Index)){
         //     duppedDocument.trim(TrimType.TRANSPARENT); // extra check
         // }
@@ -2733,7 +2735,6 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         }
         fileNameBody += abAr[artbrdIndex].name;
     }
-
     if (exportInfo.prefixIndex) {
         if ((exportInfo.inclArtboardName) || (exportInfo.fileNamePrefix)) {
             fileNameBody += "-";
@@ -2752,9 +2753,16 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
                 fileNameBody += "-" + nameEntry.nameIndex++;
         }
     }
+
+    // alert("step")
     // alert((null != compRef.comment) && exportInfo.addCompComment)
+    
+    // TODO FIX issue with coment to long
+    // alert(compRef.comment) 
+    // alert(compRef.comment.substring(0, 20)) 
     if ((null != compRef.comment) && exportInfo.addCompComment) {
-        if (compRef.comment.length > 20) compRef.comment = compRef.comment.substring(0, 20);
+            // alert("subString comment")
+        if (compRef.comment.length > 20) fileNameBody = compRef.comment.substring(0, 20);
         fileNameBody += "-" + compRef.comment;
     }
 
@@ -2763,17 +2771,23 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
         fileNameBody += "-"+exportInfo.fileNameSuffix;
     }
 
-    if (fileNameBody.length > 120) fileNameBody = fileNameBody.substring(0, 120);
+
+    // alert("subString file name")
+    if (fileNameBody.length > 120)
+        fileNameBody = fileNameBody.substring(0, 120);
     fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|\\\r\\\n]/g, ""); // "/\:*?"<>|\r\n" -> "-"
 
     // alert("add icc: "+exportInfo.icc+" - conv icc: "+exportInfo.convicc)
     // //Convert to sRGB if true
     if (exportInfo.convicc) {
+        // alert("Conv sRRGB")
         ConvertTosRGBProfile();
     }
 
     saveFile(duppedDocument, fileNameBody, exportInfo);
+
     duppedDocument.close(SaveOptions.DONOTSAVECHANGES);
+    // alert("Close duplicate")
 }
 
 // End Layer Comps To Files.jsx
