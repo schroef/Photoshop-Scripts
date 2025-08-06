@@ -6,7 +6,7 @@
 // Artboard support by Antonio Costa
 
 /*
-@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.3.1
+@@@BUILDINFO@@@ Layer Comps &amp; Artboards to Files.jsx 1.3.2
 */
 
 /*
@@ -57,6 +57,10 @@
 
 ////////////////////////////////////////////////////////////
 /*
+
+  v1.3.2 - 20250806
+  Added
+  - Webp support
 
   v1.3.1 - 20240807
   Fixed
@@ -171,7 +175,7 @@ $.localize = true;
 //=================================================================
 
 // UI strings to be localized
-var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export Layer Comps & Artboards v1.3.1");
+var strTitle = localize("$$$/JavaScripts/LayerCompsToABFiles/Title=Export Layer Comps & Artboards v1.3.2");
 var strButtonRun = localize("$$$/JavaScripts/LayerCompsToABFiles/Run=Run");
 var strButtonCancel = localize("$$$/JavaScripts/LayerCompsToABFiles/Cancel=Cancel");
 var strHelpText = localize("$$$/JavaScripts/LayerCompsToABFiles/Help=Please specify the format and location for saving each layer comp as a file.");
@@ -224,6 +228,7 @@ var strPNG8Options = localize("$$$/JavaScripts/ExportLayersToFiles/PNG8Options=P
 var strCheckboxPNGTransparency = localize("$$$/JavaScripts/ExportLayersToFiles/Transparency=Transparency");
 var strCheckboxPNGInterlaced = localize("$$$/JavaScripts/ExportLayersToFiles/Interlaced=Interlaced");
 var strPNG24Options = localize("$$$/JavaScripts/ExportLayersToFiles/PNG24Options=PNG-24 Options:");
+var strWEBPOptions = localize("$$$/JavaScripts/ExportLayersToFiles/WEBPOptions=WEBP Options:");
 var strConvertICC = localize("$$$/JavaScripts/ImageProcessor/Convert=Convert to sRGB");
 var strConvertICCHelp = localize("$$$/JavaScripts/ImageProcessor/ConvertHelp=Convert the ICC profile to sRGB before saving");
 var strCheckboxTrimLayers = localize("$$$/JavaScripts/CompsToFiles/Trim=Trim Layers");
@@ -247,6 +252,7 @@ var targaIndex = 4;
 var tiffIndex = 5;
 var png8Index = 6;
 var png24Index = 7;
+var webpIndex = 8;
 
 // the drop down list indexes for tiff compression
 var compNoneIndex = 0;
@@ -710,6 +716,7 @@ function settingDialog(exportInfo) {
     dlgMain.ddFileType.add("item", "TIFF");
     dlgMain.ddFileType.add("item", "PNG-8");
     dlgMain.ddFileType.add("item", "PNG-24");
+    dlgMain.ddFileType.add("item", "WebP");
 
     dlgMain.ddFileType.onChange = function() {
         hideAllFileTypePanel(dlgMain);
@@ -741,6 +748,13 @@ function settingDialog(exportInfo) {
             case png24Index:
                 dlgMain.pnlFileType.pnlOptions.text = strPNG24Options;
                 dlgMain.pnlFileType.pnlOptions.grpPNG24Options.show();
+                break;
+            case webpIndex:
+                // alert(dlgMain.pnlFileType.pnlOptions.webpOptionsPnl)
+                dlgMain.pnlFileType.pnlOptions.text = strWEBPOptions;
+                dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.show();
+                // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.show();
+                // dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.show();
                 break;
             case psdIndex:
             default:
@@ -818,7 +832,7 @@ function settingDialog(exportInfo) {
     dlgMain.pnlFileType.pnlOptions.grpPNG24Options.png24Trans.value = exportInfo.png24Transparency;
     dlgMain.pnlFileType.pnlOptions.grpPNG24Options.png24Inter.value = exportInfo.png24Interlaced;
     dlgMain.pnlFileType.pnlOptions.grpPNG24Options.visible = (exportInfo.fileType == png24Index);
-
+    
     // JPEG options
     dlgMain.pnlFileType.pnlOptions.grpJPEGOptions = dlgMain.pnlFileType.pnlOptions.add("group");
     dlgMain.pnlFileType.pnlOptions.grpJPEGOptions.add("statictext", undefined, strLabelQuality);
@@ -866,6 +880,338 @@ function settingDialog(exportInfo) {
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality.preferredSize.width = StrToIntWithDefault(stretQuality, 30);
     dlgMain.pnlFileType.pnlOptions.grpTIFFOptions.grpQuality.etQuality.graphics.disabledBackgroundColor = brush;
 
+    
+    // alert(exportInfo.fileType == webpIndex)
+    // WEBP
+    // if (exportInfo.fileType == webpIndex) {
+                
+    // WEBPOPTIONSPNL
+    // ==============
+    dlgMain.pnlFileType.pnlOptions.grpWEBPOptions = dlgMain.pnlFileType.pnlOptions.add("group");
+    dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.orientation = "column";
+    dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.visible = (exportInfo.fileType == webpIndex);
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl = dlgMain.pnlFileType.pnlOptions.add("panel", undefined, undefined, {name: "webpOptionsPnl"}); 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.text = "WEBP Options"; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.orientation = "column"; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.alignChildren = ["left","top"]; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.spacing = 10; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.margins = 10; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.alignment = ["fill","top"]; 
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.visible = (exportInfo.fileType == webpIndex);
+
+    // WEBPIMAGECOMPRESSIONPNL
+    // =======================
+    var webpImageCOmpressionPnl = dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.add("panel", undefined, undefined, {name: "webpImageCOmpressionPnl"}); 
+        webpImageCOmpressionPnl.text = "Image Compression"; 
+        webpImageCOmpressionPnl.orientation = "column"; 
+        webpImageCOmpressionPnl.alignChildren = ["left","top"]; 
+        webpImageCOmpressionPnl.spacing = 10; 
+        webpImageCOmpressionPnl.margins = 10; 
+
+    // WEBPOPTIONSLOSSLESSGRP
+    // ======================
+    var webpOptionsLosslessGrp = webpImageCOmpressionPnl.add("group", undefined, {name: "webpOptionsLosslessGrp"}); 
+        webpOptionsLosslessGrp.orientation = "row"; 
+        webpOptionsLosslessGrp.alignChildren = ["left","center"]; 
+        webpOptionsLosslessGrp.spacing = 10; 
+        webpOptionsLosslessGrp.margins = 0; 
+
+    var webpLosslessStt = webpOptionsLosslessGrp.add("statictext", undefined, undefined, {name: "webpLosslessStt"}); 
+        webpLosslessStt.helpTip = ""; 
+        webpLosslessStt.text = "Lossless"; 
+        webpLosslessStt.preferredSize.width = 55; 
+        webpLosslessStt.alignment = ["left","fill"]; 
+
+    var webpLosslessChb = webpOptionsLosslessGrp.add("radiobutton", undefined, undefined, {name: "webpLosslessChb"}); 
+        webpLosslessChb.helpTip = "Save the PDF keeping layers"; 
+
+    // WEBPOPTIONSLOSSYGRP
+    // ===================
+    var webpOptionsLossyGrp = webpImageCOmpressionPnl.add("group", undefined, {name: "webpOptionsLossyGrp"}); 
+        webpOptionsLossyGrp.orientation = "row"; 
+        webpOptionsLossyGrp.alignChildren = ["left","center"]; 
+        webpOptionsLossyGrp.spacing = 10; 
+        webpOptionsLossyGrp.margins = 0; 
+
+    var webpLossyStt = webpOptionsLossyGrp.add("statictext", undefined, undefined, {name: "webpLossyStt"}); 
+        webpLossyStt.helpTip = "Keep transparency in output file"; 
+        webpLossyStt.text = "Lossy"; 
+        webpLossyStt.preferredSize.width = 55; 
+        webpLossyStt.alignment = ["left","fill"]; 
+
+    var webpLossyChb = webpOptionsLossyGrp.add("radiobutton", undefined, undefined, {name: "webpLossyChb"}); 
+        webpLossyChb.helpTip = "Keep transparency in output file"; 
+
+    // WEBPOPTIONSQUALITYGRP
+    // =====================
+    var webpOptionsQualityGrp = webpOptionsLossyGrp.add("group", undefined, {name: "webpOptionsQualityGrp"}); 
+        webpOptionsQualityGrp.orientation = "row"; 
+        webpOptionsQualityGrp.alignChildren = ["left","center"]; 
+        webpOptionsQualityGrp.spacing = 10; 
+        webpOptionsQualityGrp.margins = 0; 
+
+    var webpLossyQualityStt = webpOptionsQualityGrp.add("statictext", undefined, undefined, {name: "webpLossyQualityStt"}); 
+        webpLossyQualityStt.helpTip = ""; 
+        webpLossyQualityStt.text = "Quality"; 
+        webpLossyQualityStt.preferredSize.width = 35; 
+        webpLossyQualityStt.alignment = ["left","fill"]; 
+
+    var webpLossyQualitySldr = webpOptionsQualityGrp.add("slider", undefined, undefined, undefined, undefined, {name: "webpLossyQualitySldr"}); 
+        webpLossyQualitySldr.helpTip = "Quality of the exported image raning from 0-12"; 
+        webpLossyQualitySldr.minvalue = 0; 
+        webpLossyQualitySldr.maxvalue = 100; 
+        webpLossyQualitySldr.value = exportInfo.webpLossyQuality; 
+        webpLossyQualitySldr.preferredSize.width = 100; 
+
+    var webpLossyQualityInpt = webpOptionsQualityGrp.add("edittext", undefined, undefined, {name: "webpLossyQualityInpt"}); 
+        webpLossyQualityInpt.text = exportInfo.webpLossyQuality; 
+
+    var webpLossyQualityDD_array = ["Minimum","Low","Medium","High","Maximum"]; 
+    var webpLossyQualityDD = webpOptionsQualityGrp.add("dropdownlist", undefined, undefined, {name: "webpLossyQualityDD", items: webpLossyQualityDD_array}); 
+        webpLossyQualityDD.selection = exportInfo.webpLossyQualityDD; 
+        webpLossyQualityDD.preferredSize.width = 55; 
+
+    // WEBPOPTIONSINCLUDEXMPGRP
+    // ========================
+    var webpOptionsIncludeXmpGrp = dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.add("group", undefined, {name: "webpOptionsIncludeXmpGrp"}); 
+        webpOptionsIncludeXmpGrp.orientation = "row"; 
+        webpOptionsIncludeXmpGrp.alignChildren = ["left","center"]; 
+        webpOptionsIncludeXmpGrp.spacing = 10; 
+        webpOptionsIncludeXmpGrp.margins = 0; 
+
+    var webpIncludeXmpStt = webpOptionsIncludeXmpGrp.add("statictext", undefined, undefined, {name: "webpIncludeXmpStt"}); 
+        webpIncludeXmpStt.helpTip = ""; 
+        webpIncludeXmpStt.text = "Include XMP Metadata"; 
+        webpIncludeXmpStt.preferredSize.width = 125; 
+        webpIncludeXmpStt.alignment = ["left","fill"]; 
+
+    var webpIncludeXmpChb = webpOptionsIncludeXmpGrp.add("checkbox", undefined, undefined, {name: "webpIncludeXmpChb"}); 
+        webpIncludeXmpChb.helpTip = "Save the PDF keeping layers"; 
+        webpIncludeXmpChb.value =  exportInfo.webpXMPdata;
+
+    // WEBPOPTIONSINCLUDEEXIFGRP
+    // =========================
+    var webpOptionsIncludeExifGrp = dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.add("group", undefined, {name: "webpOptionsIncludeExifGrp"}); 
+        webpOptionsIncludeExifGrp.orientation = "row"; 
+        webpOptionsIncludeExifGrp.alignChildren = ["left","center"]; 
+        webpOptionsIncludeExifGrp.spacing = 10; 
+        webpOptionsIncludeExifGrp.margins = 0; 
+
+    var webpIncludeExifStt = webpOptionsIncludeExifGrp.add("statictext", undefined, undefined, {name: "webpIncludeExifStt"}); 
+        webpIncludeExifStt.helpTip = ""; 
+        webpIncludeExifStt.text = "Include EXIF Metadata"; 
+        webpIncludeExifStt.preferredSize.width = 125; 
+        webpIncludeExifStt.alignment = ["left","fill"]; 
+
+    var webpIncludeExifChb = webpOptionsIncludeExifGrp.add("checkbox", undefined, undefined, {name: "webpIncludeExifChb"}); 
+        webpIncludeExifChb.helpTip = "Save the PDF keeping layers"; 
+        webpIncludeExifChb.value =  exportInfo.webpExifdata;
+
+    // WEBPOPTIONSINCLUDEPSEXTRASGRP
+    // =============================
+    var webpOptionsIncludePSextrasGrp = dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.add("group", undefined, {name: "webpOptionsIncludePSextrasGrp"}); 
+        webpOptionsIncludePSextrasGrp.orientation = "row"; 
+        webpOptionsIncludePSextrasGrp.alignChildren = ["left","center"]; 
+        webpOptionsIncludePSextrasGrp.spacing = 10; 
+        webpOptionsIncludePSextrasGrp.margins = 0; 
+
+    var webpIncludePSextrasStt = webpOptionsIncludePSextrasGrp.add("statictext", undefined, undefined, {name: "webpIncludePSextrasStt"}); 
+        webpIncludePSextrasStt.helpTip = ""; 
+        webpIncludePSextrasStt.text = "Include Photoshop Extras"; 
+        webpIncludePSextrasStt.preferredSize.width = 125; 
+        webpIncludePSextrasStt.alignment = ["left","fill"]; 
+
+    var webpIncludePSextrasChb = webpOptionsIncludePSextrasGrp.add("checkbox", undefined, undefined, {name: "webpIncludePSextrasChb"}); 
+        webpIncludePSextrasChb.helpTip = "Save the PDF keeping layers"; 
+        webpIncludePSextrasChb.value = exportInfo.webpPSextras; 
+
+    // }
+
+    // WEBp options
+    // if (exportInfo.fileType == webpIndex) {
+    // alert(exportInfo.webpLossyQuality)
+    webpLossyQualityInpt.text = exportInfo.webpLossyQuality.toString();
+
+    function setWebpRcb(){
+        if ("lossy" != exportInfo.webpCompression) { // if not JPEG
+            webpLossyQualityStt.enabled = false;
+            webpLossyQualitySldr.enabled = false;
+            webpLossyQualityInpt.enabled = false;
+            webpLossyQualityDD.enabled = false;
+        } else {
+            webpLossyQualityStt.enabled = true;
+            webpLossyQualitySldr.enabled = true;
+            webpLossyQualityInpt.enabled = true;
+            webpLossyQualityDD.enabled = true;
+        }
+    }
+    function getWebpImageCompression(button){
+        var buttons = [webpLosslessChb, webpLossyChb];
+        for (i=0; i<buttons.length; i++){
+            if (buttons[i]!=button){
+                buttons[i].value = false;
+            } else {
+                buttons[i].value = true;
+                exportInfo.webpCompression = i == 0 ? "lossless" : "lossy";
+            }
+        }
+        setWebpRcb()
+    }
+    function setWebpImageCompression(item){
+        var buttons = [webpLosslessChb, webpLossyChb];
+        var button = ["lossless","lossy"];
+        for (i=0; i<buttons.length; i++){
+            if (button[i]!=exportInfo.webpCompression){
+                buttons[i].value = false;
+            } else {
+                buttons[i].value = true;
+            }
+        }
+        setWebpRcb()
+    }
+    setWebpImageCompression(exportInfo.webpCompression)
+
+    webpLosslessChb.onClick = function(){
+        alert("webpLosslessChb")
+        getWebpImageCompression(this)
+    };
+    webpLossyChb.onClick = function(){
+        getWebpImageCompression(this)
+    };
+
+    // tiffCompressionDD.onChange = function() {
+    // if (this.selection.index == compJPEGIndex) {
+    //         tiffQualityStt.enabled = true;
+    //         tiffQualitySldr.enabled = true;
+    //         tiffQualityInpt.enabled = true;
+    //     } else {
+    //         tiffQualityStt.enabled = false;
+    //         tiffQualitySldr.enabled = false;
+    //         tiffQualityInpt.enabled = false;
+    //     }
+    // }
+    // tiffTransparencyChb.value = exportInfo.tiffTransparency;
+    // tiffLayersChb.value = exportInfo.tiffLayers;
+    // // alert("exportInfo.tiffCompression "+exportInfo.tiffCompression)
+    // var index;
+    // switch (exportInfo.tiffCompression) {
+    //     case TIFFEncoding.NONE:
+    //         index = compNoneIndex;
+    //         break;
+    //     case TIFFEncoding.TIFFLZW:
+    //         index = compLZWIndex;
+    //         break;
+    //     case TIFFEncoding.TIFFZIP:
+    //         index = compZIPIndex;
+    //         break;
+    //     case TIFFEncoding.JPEG:
+    //         index = compJPEGIndex;
+    //         break;
+    //     default:
+    //         index = compNoneIndex;
+    //         break;
+    // }
+    // tiffCompressionDD.items[index].selected = true;
+    
+    webpLossyQualityInpt.text = webpLossyQualitySldr.value;
+    webpLossyQualityInpt.onChange = makeWEBPQualityFieldValidationFunction(undefined, webpLossyQualitySldr);
+    // webpLossyQualityInpt.onChange = makeWEBPQualityFieldValidationFunction(webpLossyQualityDD, undefined);
+    // webpLossyQualitySldr.onChange = makeWEBPQualityFieldValidationFunction(webpLossyQualityDD, undefined);
+    webpLossyQualitySldr.onChange = webpLossyQualityInpt.text; 
+    webpLossyQualitySldr.onChanging = (
+        function(field) { 
+            return function () {  
+                this.value = field.text = Math.round(this.value); 
+                webpLossyQualityInpt.text=this.value
+                // alert(this.value > 0)
+                if(this.value > 0 && this.value < 11)
+                    webpLossyQualityDD.items[0].selected = true;
+                if(this.value > 12 && this.value < 37)
+                    webpLossyQualityDD.items[1].selected = true;    
+                if(this.value > 38 && this.value < 62)
+                    webpLossyQualityDD.items[2].selected = true;    
+                if(this.value > 63 && this.value < 88)
+                    webpLossyQualityDD.items[3].selected = true;    
+                if(this.value > 89)
+                    webpLossyQualityDD.items[4].selected = true;    
+                };
+            })(webpLossyQualityInpt.text); 
+
+    webpLossyQualityDD.onChange = function(){
+        switch(this.selection.index){
+            case 0:
+                quality = 0;
+                break;
+            case 1:
+                quality = 12;
+                break;
+            case 2:
+                quality = 38;
+                break;
+            case 3:
+                quality = 63;
+                break;
+            default:
+                quality = 89;
+                break;
+        }
+        webpLossyQualityInpt.text = quality;
+        webpLossyQualitySldr.value = quality;
+        exportInfo.webpLossyQualityDD = webpLossyQualityDD.selection.index;
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Function: makeWEBPQualityFieldValidationFunction
+    // Usage: Validation for WEBP Quality fields
+    // Input: either an integer or a holding property
+    // Return: a function for .onChange
+    // Source; adjusted version "Layer COmps to Files.jsx"
+    ///////////////////////////////////////////////////////////////////////////
+    function makeWEBPQualityFieldValidationFunction(defaultValue, alternateProperty){
+        return function () {
+                var val = this.text;
+                if(isNaN(val))
+                    this.text = defaultValue ? defaultValue : alternateProperty.value;
+                else
+                {
+                    if(val > 100)
+                        val = 100;
+                    if(val < 0)
+                        val = 0;
+                    if(val > 0)
+                        webpLossyQualityDD.items[0].selected = true;
+                        // this.items[0].selected = true;
+                    if(val > 12)
+                        webpLossyQualityDD.items[1].selected = true;    
+                        // this.items[1].selected = true;    
+                    if(val > 38)
+                        webpLossyQualityDD.items[2].selected = true;    
+                        // this.items[2].selected = true;    
+                    if(val > 63)
+                        webpLossyQualityDD.items[3].selected = true;    
+                        // this.items[3].selected = true;    
+                    if(val > 89)
+                        webpLossyQualityDD.items[4].selected = true;    
+                        // this.items[4].selected = true;    
+                    this.text = val;
+                    if(alternateProperty)
+                        alternateProperty.value = val;
+                }
+            } 
+    }
+    // switch (exportInfo.pdfEncoding) {
+    //     case PDFEncoding.PDFZIP: 
+    //         pdfEncodingZipRdb.value = true;
+    //         break;
+    //     case PDFEncoding.JPEG:
+    //         pdfEncodingJpgRdb.value = true;
+    //         break;
+    //     default: 
+    //         pdfEncodingZipRdb.value = true;
+    //         break;
+    // }
+    // }
+    // ///////////////////////////////////////////
 
     var index;
     switch (exportInfo.tiffCompression) {
@@ -1156,6 +1502,16 @@ function settingDialog(exportInfo) {
         exportInfo.bmpDepth = BMPDepthType.THIRTYTWO;
     }
 
+    // WEBp options
+    exportInfo.webpCompression = exportInfo.webpCompression;
+    exportInfo.webpLossyQuality = webpLossyQualityInpt.text;
+    exportInfo.webpLossyQualityDD = webpLossyQualityDD.selection.index;
+    exportInfo.webpXMPdata = webpIncludeXmpChb.value;
+    exportInfo.webpExifdata = webpIncludeExifChb.value;
+    exportInfo.webpPSextras = webpIncludePSextrasChb.value;
+    
+    
+
     return result;
 }
 
@@ -1217,6 +1573,11 @@ function hideAllFileTypePanel(dlgMain) {
     dlgMain.pnlFileType.pnlOptions.grpBMPOptions.hide();
     dlgMain.pnlFileType.pnlOptions.grpPNG8Options.hide();
     dlgMain.pnlFileType.pnlOptions.grpPNG24Options.hide();
+    dlgMain.pnlFileType.pnlOptions.grpWEBPOptions.hide();
+    
+    // webpOptionsPnl.hide();
+    // dlgMain.pnlFileType.pnlOptions.webpOptionsPnl.hide();
+    
 }
 
 
@@ -1280,6 +1641,13 @@ function initExportInfo(exportInfo, isSelection, artboardAvail, isOverrideSticky
         exportInfo.png24Interlaced = false;
         exportInfo.png8Transparency = false;
         exportInfo.png8Interlaced = false;
+
+        exportInfo.webpCompression = undefined;
+        exportInfo.webpLossyQuality = 8;
+        exportInfo.webpLossyQualityDD = 0;
+        exportInfo.webpXMPdata = false;
+        exportInfo.webpExifdata = false;
+        exportInfo.webpPSextras = false;
     }
 }
 
@@ -1556,6 +1924,18 @@ function saveFile(docRef, fileNameBody, exportInfo) {
                 // var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".png");
                 // docRef.exportDocument(saveFile,ExportType.SAVEFORWEB,docExportOptions) 
                 break;
+            case webpIndex:
+                // alert("TODO exportsavesettings")
+                /*
+                    exportInfo.webpCompression = undefined;
+                    exportInfo.webpLossyQuality = 8;
+                    exportInfo.webpLossyQualityDD = 0;
+                    exportInfo.webpXMPdata = false;
+                    exportInfo.webpExifdata = false;
+                    exportInfo.webpPSextras = false;
+                */
+                saveWebP(exportInfo.destination, fileNameBody, exportInfo.webpCompression, 80, true, true, true, true);
+                break;
             default:
                 if (DialogModes.NO != app.playbackDisplayDialogs) {
                     alert(strUnexpectedError);
@@ -1570,6 +1950,72 @@ function saveFile(docRef, fileNameBody, exportInfo) {
     }
     logToHeadLights("Layer Comp To File " + fileExtension);
 }
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+function saveWebP(path, templateName, compType, compValue, xmpData, exifData, psData, asCopy) {
+    // function saveWebP(path, compType, compValue, xmpData, exifData, psData, asCopy) {
+    /*
+    v1.1 - 12th March 2023, Stephen Marsh
+    https://community.adobe.com/t5/photoshop-ecosystem-discussions/saving-webp-image-by-script/td-p/13642577
+    */
+    // Doc and path save variables
+    // var WebPDocName = activeDocument.name.replace(/\.[^\.]+$/, ''); // Remove file extension
+    // var WebPSavePath = outputFolder + "/" + WebPDocName + ".webp" // Change path as needed
+    
+    var WebPDocName = templateName.replace(/\.[^\.]+$/, ''); // Remove file extension
+    var WebPSavePath = path + "/" + WebPDocName + ".webp" // Change path as needed
+    var WebPFile = new File(WebPSavePath); // Create the file object
+    // alert(WebPSavePath)
+    /*
+    // Check for existing file object
+    if (WebPFile.exists) {
+    // true = 'No' as default active button
+    if (!confirm("File exists, overwrite: Yes or No?", true))
+    // throw alert("Script cancelled!");
+    throw null;
+    }
+    */
+       
+    // alert("save webp command")
+
+    function s2t(s) {
+        return app.stringIDToTypeID(s);
+    }
+    var descriptor = new ActionDescriptor();
+    var descriptor2 = new ActionDescriptor();
+
+    // Compression parameters = "compressionLossless" | "compressionLossy"
+    descriptor2.putEnumerated(s2t("compression"), s2t("WebPCompression"), s2t(compType)); // string variable
+    // Makes no sense, this is manual
+    // var WebPCompIsLossless = false; // set the default flag for compression
+    // if (WebPCompIsLossless == false) {
+    if (compType == "compressionLossy") {
+        // 0 (lowest lossy quality) - 100 (highest lossy quality)
+        descriptor2.putInteger(s2t("quality"), compValue); //  number variable
+    }
+
+    // Metadata options
+    descriptor2.putBoolean(s2t("includeXMPData"), xmpData); // Boolean param moved to function call
+    descriptor2.putBoolean(s2t("includeEXIFData"), exifData); // Boolean param moved to function call
+    descriptor2.putBoolean(s2t("includePsExtras"), psData); // Boolean param moved to function call
+
+    // WebP format and save path
+    descriptor.putObject(s2t("as"), s2t("WebPFormat"), descriptor2);
+    descriptor.putPath(s2t("in"), WebPFile); // Save path variable
+
+    // Save As = false | Save As a Copy = true
+    descriptor.putBoolean(s2t("copy"), asCopy); // Boolean param moved to function call
+
+    // The extension
+    descriptor.putBoolean(s2t("lowerCase"), true);
+
+    // Execute the save
+    executeAction(s2t("save"), descriptor, DialogModes.NO); // Change NO to ALL for dialog
+} 
+///////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1689,6 +2135,7 @@ function descriptorToObject(o, d, s, f) {
         var k = d.getKey(i); // i + 1 ?
         var t = d.getType(k);
         strk = app.typeIDToStringID(k);
+        // alert(strk)
         switch (t) {
             case DescValueType.BOOLEANTYPE:
                 o[strk] = d.getBoolean(k);
@@ -2785,6 +3232,7 @@ function exportArtboards(compsIndex, artbrdIndex, exportInfo, abAr, compRef, nam
     }
 
     saveFile(duppedDocument, fileNameBody, exportInfo);
+
 
     duppedDocument.close(SaveOptions.DONOTSAVECHANGES);
     // alert("Close duplicate")
